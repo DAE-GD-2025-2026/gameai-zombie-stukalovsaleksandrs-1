@@ -39,6 +39,8 @@ public class StukalovsAlexZombieRuntime : ModuleRules
 				"Slate",
 				"SlateCore",
 				"AIModule",
+				"GameAI_Zombie",
+				"GameplayTasks"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
