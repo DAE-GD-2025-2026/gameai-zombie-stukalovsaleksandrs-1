@@ -1,39 +1,39 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SteeringBehaviors/SteeringComponent.h"
+#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
 
-#include "SteeringHelpers.h"
-#include "SteeringBehaviors/SteeringBehaviors.h"
+#include "SteeringHelpers_StukalovsAlex.h"
+#include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
-USteeringComponent::USteeringComponent()
+USteeringComponent_StukalovsAlex::USteeringComponent_StukalovsAlex()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Initializing the steering behaviors
-	Behaviors.emplace(typeid(FSeek), std::make_unique<FSeek>());
+	Behaviors.emplace(typeid(FSeek_StukalovsAlex), std::make_unique<FSeek_StukalovsAlex>());
 
 	// Selecting the starting behavior
-	CurrentBehavior = Behaviors.at(typeid(FSeek)).get();
+	CurrentBehavior = Behaviors.at(typeid(FSeek_StukalovsAlex)).get();
 }
 
-void USteeringComponent::BeginPlay()
+void USteeringComponent_StukalovsAlex::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-FVector2D USteeringComponent::GetOwnerLocation2D() const noexcept
+FVector2D USteeringComponent_StukalovsAlex::GetOwnerLocation2D() const noexcept
 {
 	FVector const OwnerLocation{ GetOwner()->GetActorLocation() };
 	return {OwnerLocation.X, OwnerLocation.Y};
 }
 
-void USteeringComponent::TickComponent(float const DeltaSec, ELevelTick const TickType,
+void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELevelTick const TickType,
                                        FActorComponentTickFunction* const ThisTickFunction)
 {
 	Super::TickComponent(DeltaSec, TickType, ThisTickFunction);
 	// 1. Calculating the steering
-	FSteeringOutput const Steering{ CurrentBehavior->CalculateSteering(DeltaSec, *this) };
+	FSteeringOutput_StukalovsAlex const Steering{ CurrentBehavior->CalculateSteering(DeltaSec, *this) };
 	// 2. Applying the movement input to the owner
 	ASurvivorPawn* const SurvivorPawn{ Cast<ASurvivorPawn>(GetOwner()) };
 	verify(SurvivorPawn);
@@ -44,7 +44,7 @@ void USteeringComponent::TickComponent(float const DeltaSec, ELevelTick const Ti
 	GetOwner()->SetActorRotation(Rotator);
 }
 
-void USteeringComponent::SetTarget(FVector2D const& Target) const
+void USteeringComponent_StukalovsAlex::SetTarget(FVector2D const& Target) const
 {
 	CurrentBehavior->SetTarget(Target);
 }

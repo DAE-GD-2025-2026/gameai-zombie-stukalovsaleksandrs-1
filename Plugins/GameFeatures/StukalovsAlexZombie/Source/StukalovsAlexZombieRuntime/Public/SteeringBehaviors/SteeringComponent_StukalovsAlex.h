@@ -4,29 +4,29 @@
 
 #include <memory>
 #include <typeindex>
+#include <unordered_map>
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include <unordered_map>
 
-#include "SteeringBehaviors.h"
-#include "SteeringComponent.generated.h"
+#include "SteeringBehaviors_StukalovsAlex.h"
+#include "SteeringComponent_StukalovsAlex.generated.h"
 
-class FSteeringBehaviorBase;
+class FSteeringBehaviorBase_StukalovsAlex;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class STUKALOVSALEXZOMBIERUNTIME_API USteeringComponent : public UActorComponent
+class STUKALOVSALEXZOMBIERUNTIME_API USteeringComponent_StukalovsAlex : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	USteeringComponent();
+	USteeringComponent_StukalovsAlex();
 
 	virtual void TickComponent(float DeltaSec, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	
-	template<typename T> requires std::derived_from<T, FSteeringBehaviorBase>
+	template<typename T> requires std::derived_from<T, FSteeringBehaviorBase_StukalovsAlex>
 	void SetBehavior() const
 	{
 		CurrentBehavior = *Behaviors.at(typeid(T));
@@ -39,7 +39,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	std::unordered_map<std::type_index, std::unique_ptr<FSteeringBehaviorBase>> Behaviors{};
-	FSteeringBehaviorBase* CurrentBehavior{};// non-owning
+	std::unordered_map<std::type_index, std::unique_ptr<FSteeringBehaviorBase_StukalovsAlex>> Behaviors{};
+	FSteeringBehaviorBase_StukalovsAlex* CurrentBehavior{};// non-owning
 
 };

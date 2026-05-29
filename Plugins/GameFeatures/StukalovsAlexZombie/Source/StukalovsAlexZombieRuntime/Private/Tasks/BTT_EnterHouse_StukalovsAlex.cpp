@@ -7,7 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Survivor/SurvivorPawn.h"
 #include "Engine/World.h"
-#include "SteeringBehaviors/SteeringComponent.h"
+#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
 #include "Village/House/House.h"
 
 struct FEnterHouseMemory final
@@ -82,8 +82,8 @@ void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 	else
 	{
 		// 5. Setting the waypoint as arrival destination
-		USteeringComponent* SteeringBehaviorComponent{
-			SurvivorPawn->GetComponentByClass<USteeringComponent>()
+		USteeringComponent_StukalovsAlex* SteeringBehaviorComponent{
+			SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>()
 		};
 		verify(SteeringBehaviorComponent);
 		SteeringBehaviorComponent->SetTarget({CurrentWaypoint.X, CurrentWaypoint.Y});
