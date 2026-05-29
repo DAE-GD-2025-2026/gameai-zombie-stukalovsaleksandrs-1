@@ -20,6 +20,7 @@ public:
 	virtual uint16 GetInstanceMemorySize() const override;
 	
 private:
+	UPROPERTY()
 	float WaypointAcceptanceRadius{ 50.f };
 
 	[[nodiscard]] static ASurvivorPawn* GetOwner(UBehaviorTreeComponent& OwnerComp) noexcept;

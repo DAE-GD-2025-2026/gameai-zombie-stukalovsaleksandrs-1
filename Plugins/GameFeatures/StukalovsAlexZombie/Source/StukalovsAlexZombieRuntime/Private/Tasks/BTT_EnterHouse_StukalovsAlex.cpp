@@ -1,10 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+// #define DEBUG_WAYPOINTS
+#define DEBUG_WAYPOINTS
 #include "Tasks/BTT_EnterHouse_StukalovsAlex.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Survivor/SurvivorPawn.h"
 #include "Engine/World.h"
+#include "SteeringBehaviors/SteeringComponent.h"
 #include "Village/House/House.h"
 
 struct FEnterHouseMemory final
@@ -41,10 +44,12 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	Memory->CurrentPointIdx = 1;// Skipping SurvivorPawn's own location
 
 	// Visualizing waypoints
+#ifdef DEBUG_WAYPOINTS
 	for (FVector const Waypoint : Path)
 	{
 		DrawDebugSphere(GetWorld(), Waypoint, 50, 32, FColor::Green, true);
 	}
+#endif
 	
 	// 7. Requesting BT to keep the task alive
 	return EBTNodeResult::InProgress;
@@ -68,17 +73,20 @@ void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 	}
 	// 3. Saving the current waypoint data
 	FVector const& CurrentWaypoint{ Memory->Path[Memory->CurrentPointIdx] };
-	FVector const ToWaypoint{ CurrentWaypoint - SurvivorPawn->GetActorLocation() };
 
 	// 4. Advancing to the next waypoint if the current one is reached
-	if (ToWaypoint.SizeSquared() <= WaypointAcceptanceRadius * WaypointAcceptanceRadius)
+	if ((CurrentWaypoint - SurvivorPawn->GetActorLocation()).SizeSquared() <= WaypointAcceptanceRadius * WaypointAcceptanceRadius)
 	{
 		++Memory->CurrentPointIdx;
 	}
 	else
 	{
-		// 5. Adding movement input towards the current waypoint
-		SurvivorPawn->AddMovementInput(ToWaypoint.GetSafeNormal(), 1.0f);
+		// 5. Setting the waypoint as arrival destination
+		USteeringComponent* SteeringBehaviorComponent{
+			SurvivorPawn->GetComponentByClass<USteeringComponent>()
+		};
+		verify(SteeringBehaviorComponent);
+		SteeringBehaviorComponent->SetTarget({CurrentWaypoint.X, CurrentWaypoint.Y});
 	}
 }
 
