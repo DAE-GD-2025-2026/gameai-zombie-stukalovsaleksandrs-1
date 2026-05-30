@@ -19,7 +19,7 @@ bool UInventoryManager_StukalovsAlex::TryTakingItem(ABaseItem& Item)
 		// NOTE: Will be < capacity, bc of the check above
 		++SlotIdx;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Took item"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Took item"));
 	++ItemCount;
 	return true;
 }

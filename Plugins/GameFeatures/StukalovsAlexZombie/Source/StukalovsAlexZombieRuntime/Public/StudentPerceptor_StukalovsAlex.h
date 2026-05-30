@@ -10,6 +10,8 @@
 #include "Perception/AISense_Damage.h"
 #include "StudentPerceptor_StukalovsAlex.generated.h"
 
+class UHealthComponent;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class STUKALOVSALEXZOMBIERUNTIME_API UStudentPerceptor_StukalovsAlex : public UActorComponent
 {
@@ -26,6 +28,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Perception")
 	FName ItemKey{ TEXT("Item") };
+
+	UPROPERTY(EditDefaultsOnly, Category = "Perception")
+	FName ZombieKey{ TEXT("Zombie") };
 	
 	UFUNCTION()
 	virtual void OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
@@ -33,5 +38,11 @@ public:
 private:
 	UPROPERTY()
 	UBlackboardComponent* BlackboardComponent{};
+
+	float OldHealth{};
+	UHealthComponent* HealthComponent{};
+
+	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
+
 	
 };
