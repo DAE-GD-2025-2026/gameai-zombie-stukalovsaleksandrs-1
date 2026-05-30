@@ -23,5 +23,4 @@ private:
 	UPROPERTY()
 	float WaypointAcceptanceRadius{ 50.f };
 
-	[[nodiscard]] static ASurvivorPawn* GetOwner(UBehaviorTreeComponent& OwnerComp) noexcept;
 };

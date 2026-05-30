@@ -21,9 +21,11 @@ public:
 	
 	virtual void BeginPlay() override;
 	
-	// The blackboard key name to write the spotted AHouse into.
 	UPROPERTY(EditDefaultsOnly, Category = "Perception")
 	FName HouseKey{ TEXT("House") };
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Perception")
+	FName ItemKey{ TEXT("Item") };
 	
 	UFUNCTION()
 	virtual void OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);

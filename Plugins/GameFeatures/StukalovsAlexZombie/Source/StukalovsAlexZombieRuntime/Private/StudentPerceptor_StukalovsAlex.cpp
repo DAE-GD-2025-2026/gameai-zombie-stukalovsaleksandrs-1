@@ -4,8 +4,10 @@
 #include "StudentPerceptor_StukalovsAlex.h"
 
 #include "AIController.h"
+#include "ContentBrowserItem.h"
 #include "EngineUtils.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Items/BaseItem.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Village/House/House.h"
 
@@ -44,18 +46,25 @@ void UStudentPerceptor_StukalovsAlex::BeginPlay()
 
 void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStimulus const Stimulus)
 {
-	// 1. Performing input validation
+	// Performing input validation
 	verify(Actor);
 	if (!Stimulus.WasSuccessfullySensed() || Stimulus.IsExpired()) return;
-	
-	// 2. Checking if we see a house
+
+	// Processing visibility
 	if (Stimulus.Type == UAISense_Sight::GetSenseID<UAISense_Sight>())
 	{
-		// 2. Setting the house blackboard reference if the perceived actor is a house
-		AHouse* HouseActor = Cast<AHouse>(Actor);
-		if (HouseActor)
+		if (AHouse* House{ Cast<AHouse>(Actor) }; House)
 		{
-			BlackboardComponent->SetValueAsObject(HouseKey, HouseActor);
+			BlackboardComponent->SetValueAsObject(HouseKey, House);
+			return;
+		}
+
+		if (ABaseItem* Item{ Cast<ABaseItem>(Actor) }; Item)
+		{
+			// Check if this item is more valuable 
+			BlackboardComponent->SetValueAsObject(ItemKey, Item);
+			return;
 		}
 	}
+
 }

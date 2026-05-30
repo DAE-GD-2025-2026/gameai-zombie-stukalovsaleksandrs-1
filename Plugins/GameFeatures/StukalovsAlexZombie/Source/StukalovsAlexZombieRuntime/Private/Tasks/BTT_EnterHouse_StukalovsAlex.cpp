@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-// #define DEBUG_WAYPOINTS
-#define DEBUG_WAYPOINTS
 #include "Tasks/BTT_EnterHouse_StukalovsAlex.h"
-#include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Survivor/SurvivorPawn.h"
 #include "Engine/World.h"
 #include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Tasks/BTTUtils_StukalovsAlex.h"
 #include "Village/House/House.h"
+
+// #define DEBUG_WAYPOINTS
 
 struct FEnterHouseMemory final
 {
@@ -18,16 +18,17 @@ struct FEnterHouseMemory final
 
 UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
 {
-	bNotifyTick = true;// TickTask will be called now
+	bNotifyTick = true;// For the TickTask to be called
 	NodeName = "EnterHouse";
 }
 
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	// TODO: Set steering behavior to seek
 	// 1. Getting the owner
-	ASurvivorPawn* SurvivorPawn{ GetOwner(OwnerComp) };
+	ASurvivorPawn* SurvivorPawn{ BTTUtils_StukalovsAlex::GetOwner(OwnerComp) };
 	if (!SurvivorPawn) return EBTNodeResult::Failed;
-	// 2. Getting the currently-visible house
+	// 2. Getting the currently visible house
 	UBlackboardComponent* BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
 	verify(BlackboardComponent);
 	AHouse* const House{ Cast<AHouse>(BlackboardComponent->GetValueAsObject(TEXT("House"))) };
@@ -58,7 +59,7 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	// 1. Getting the owner
-	ASurvivorPawn* SurvivorPawn{ GetOwner(OwnerComp) };
+	ASurvivorPawn* SurvivorPawn{BTTUtils_StukalovsAlex::GetOwner(OwnerComp) };
 	if (!SurvivorPawn)
 	{
 		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
@@ -82,18 +83,14 @@ void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 	else
 	{
 		// 5. Setting the waypoint as arrival destination
-		USteeringComponent_StukalovsAlex* SteeringBehaviorComponent{
-			SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>()
-		};
-		verify(SteeringBehaviorComponent);
-		SteeringBehaviorComponent->SetTarget({CurrentWaypoint.X, CurrentWaypoint.Y});
+		BTTUtils_StukalovsAlex::SetSteeringTarget(*SurvivorPawn, {CurrentWaypoint.X, CurrentWaypoint.Y});
 	}
 }
 
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	// 1. Getting the owner
-	ASurvivorPawn* const SurvivorPawn = GetOwner(OwnerComp);
+	ASurvivorPawn* const SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	if (!SurvivorPawn) return EBTNodeResult::Aborted;
 
 	// 2. Removing all the momentum to not distort the other movement input
@@ -106,15 +103,4 @@ uint16 UBTT_EnterHouse_StukalovsAlex::GetInstanceMemorySize() const
 {
 	// Without it, the NodeMemory will be of size 0, so any writes will result in segfault
 	return sizeof(FEnterHouseMemory);
-}
-
-ASurvivorPawn* UBTT_EnterHouse_StukalovsAlex::GetOwner(UBehaviorTreeComponent& OwnerComp) noexcept
-{
-	AAIController* const Controller = OwnerComp.GetAIOwner();
-	if (!Controller) return nullptr;
-	
-	ASurvivorPawn* const SurvivorPawn = Cast<ASurvivorPawn>(Controller->GetPawn());
-	if (!SurvivorPawn) return nullptr;
-	
-	return SurvivorPawn;
 }
