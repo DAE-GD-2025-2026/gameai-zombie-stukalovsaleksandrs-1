@@ -27,9 +27,9 @@ public:
 
 	
 	template<typename T> requires std::derived_from<T, FSteeringBehaviorBase_StukalovsAlex>
-	void SetBehavior() const
+	void SetBehavior() noexcept
 	{
-		CurrentBehavior = *Behaviors.at(typeid(T));
+		CurrentBehavior = Behaviors.at(typeid(T)).get();
 	}
 	
 	void SetTarget(FVector2D const&) const;

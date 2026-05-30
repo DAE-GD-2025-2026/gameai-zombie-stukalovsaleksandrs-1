@@ -33,3 +33,14 @@ void BTTUtils_StukalovsAlex::SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVec
 	SteeringBehaviorComponent->SetTarget(NewTarget);
 }
 
+bool BTTUtils_StukalovsAlex::IsPointInHouse(FVector const& Point, FHouseBounds const& Bounds) noexcept
+{
+	double const MinX{ Bounds.Origin.X - Bounds.Extent.X };
+	double const MaxX{ Bounds.Origin.X + Bounds.Extent.X };
+	double const MinY{ Bounds.Origin.Y - Bounds.Extent.Y };
+	double const MaxY{ Bounds.Origin.Y + Bounds.Extent.Y };
+    
+	return (Point.X >= MinX && Point.X <= MaxX && 
+			Point.Y >= MinY && Point.Y <= MaxY);
+}
+

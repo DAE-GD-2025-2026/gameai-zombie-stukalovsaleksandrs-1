@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Village/House/House.h"
 
 class UBehaviorTreeComponent;
 class ASurvivorPawn;
@@ -20,4 +21,6 @@ namespace BTTUtils_StukalovsAlex
 	}
 
 	void SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget);
+
+	[[nodiscard]] bool IsPointInHouse(FVector const& Point, FHouseBounds const& Bounds) noexcept;
 }

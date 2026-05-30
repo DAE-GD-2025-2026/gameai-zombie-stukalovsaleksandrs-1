@@ -24,21 +24,35 @@ UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
 
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	// TODO: Set steering behavior to seek
 	// 1. Getting the owner
 	ASurvivorPawn* SurvivorPawn{ BTTUtils_StukalovsAlex::GetOwner(OwnerComp) };
 	if (!SurvivorPawn) return EBTNodeResult::Failed;
-	// 2. Getting the currently visible house
+	
+	// Getting the currently visible house
 	UBlackboardComponent* BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
 	verify(BlackboardComponent);
 	AHouse* const House{ Cast<AHouse>(BlackboardComponent->GetValueAsObject(TEXT("House"))) };
 	verify(House);
-	// 4. If it's a house, take the center of the house
+	
+	// Already inside the house -> Skipping
+	if (BTTUtils_StukalovsAlex::IsPointInHouse(SurvivorPawn->GetActorLocation(), House->GetBounds()))
+	{
+		return EBTNodeResult::Failed;
+	}
+	
+	// Going towards the house. Setting steering behavior to seek
+	USteeringComponent_StukalovsAlex* SteeringComponent{ SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>() };
+	verify(SteeringComponent);
+	SteeringComponent->SetBehavior<FSeek_StukalovsAlex>();
+	
+	// Taking the center of the house
 	FVector const HouseCenter{ House->GetBounds().Origin };
-	// 5. Using the SurvivorPawn::CalculatePath to get the points a character has to travel
+	
+	// Using the SurvivorPawn::CalculatePath to get the points a character has to travel
 	TArray const Path{
 		SurvivorPawn->CalculatePath(HouseCenter)
 	};
+	
 	// 6. Writing the path's data to the node's memory block to access it in Tick()
 	FEnterHouseMemory* Memory{ reinterpret_cast<FEnterHouseMemory*>(NodeMemory) };
 	Memory->Path = Path;
