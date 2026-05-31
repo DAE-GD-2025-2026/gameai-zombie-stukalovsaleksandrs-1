@@ -6,6 +6,10 @@
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTT_LookAround_StukalovsAlex.generated.h"
 
+
+class USteeringComponent_StukalovsAlex;
+class ASurvivorPawn;
+// Rotates smoothly by -AbsDegToTurn and then by +AbsDegToTurn 
 UCLASS()
 class STUKALOVSALEXZOMBIERUNTIME_API UBTT_LookAround_StukalovsAlex final : public UBTTask_BlackboardBase
 {
@@ -13,9 +17,20 @@ class STUKALOVSALEXZOMBIERUNTIME_API UBTT_LookAround_StukalovsAlex final : publi
 public:
 	UBTT_LookAround_StukalovsAlex();
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 private:
-	UPROPERTY()
-	float AbsDegToTurn{ 90.f };
-	
+	UPROPERTY(EditAnywhere)
+	float AbsDegToTurn{ 150.f };
+	UPROPERTY(EditAnywhere)
+	float DegPerSec{ 120.f };
+
+	float StartYaw{};
+	float TargetYaw{};
+	float TurnDirection{ 1.f };
+	enum class ETurningPhase{ Right, Left, BackToStart } Phase{};
+    
+	ASurvivorPawn* SurvivorPawn{};
+	USteeringComponent_StukalovsAlex* SteeringComponent{};
 };

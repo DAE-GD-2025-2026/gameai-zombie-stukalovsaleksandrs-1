@@ -5,6 +5,12 @@
 #include "SteeringOutput_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
+FSteeringOutput_StukalovsAlex FIdle_StukalovsAlex::CalculateSteering(float DeltaTime,
+	USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
+{
+	return FSteeringOutput_StukalovsAlex{};	
+}
+
 FSteeringOutput_StukalovsAlex FSeek_StukalovsAlex::CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
 {
 	FVector2D LinearVelocity{ Target - SteeringComponent.GetOwnerLocation2D() };

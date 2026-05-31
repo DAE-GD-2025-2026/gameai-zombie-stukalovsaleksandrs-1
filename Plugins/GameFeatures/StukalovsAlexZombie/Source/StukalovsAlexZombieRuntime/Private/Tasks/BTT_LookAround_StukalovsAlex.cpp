@@ -4,35 +4,56 @@
 #include "Tasks/BTT_LookAround_StukalovsAlex.h"
 
 #include "BTTUtils_StukalovsAlex.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
 UBTT_LookAround_StukalovsAlex::UBTT_LookAround_StukalovsAlex()
 {
+	bNotifyTick = true;
 	NodeName = "LookAround";
 }
 
 EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	ASurvivorPawn* const SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
+	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	verify(SurvivorPawn);
 
-	USteeringComponent_StukalovsAlex* const SteeringComponent{ SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>() };
-	verify(SteeringComponent);
+	StartYaw = SurvivorPawn->GetActorRotation().Yaw;
+	Phase = ETurningPhase::Right;
+	TargetYaw = AbsDegToTurn;
 
-	SteeringComponent->SetBehavior<FLookAt_StukalovsAlex>();
-	
-	// Setting a random LookAt target
-	FRotator const CurrentDeg{ SurvivorPawn->GetActorRotation() };
-	double const DegToTurn{ FMath::RandRange(-AbsDegToTurn, AbsDegToTurn) },
-		TotalRad{ FMath::DegreesToRadians(CurrentDeg.Yaw + DegToTurn) };
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Total degrees = %f"), FMath::RadiansToDegrees(TotalRad)));
-
-	FVector const ActorLocation{ SurvivorPawn->GetActorLocation() };
-	FVector2D const Target{ ActorLocation.X + FMath::Cos(TotalRad), ActorLocation.Y + FMath::Sin(TotalRad) };
-	SteeringComponent->SetTarget(Target);
-	
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::InProgress;
 }
 
+void UBTT_LookAround_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float const DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	float const CurrentYaw{ static_cast<float>(SurvivorPawn->GetActorRotation().Yaw) };
+	float const Remaining{ static_cast<float>(FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw))) };
+
+	if (Remaining < 2.f)
+	{
+		switch (Phase)
+		{
+		case ETurningPhase::Right:
+			Phase = ETurningPhase::Left;
+			TargetYaw = StartYaw - AbsDegToTurn;
+			TurnDirection = -1.f; // Force turning left (through 0)
+			break;
+		case ETurningPhase::Left:
+			Phase = ETurningPhase::BackToStart;
+			TargetYaw = StartYaw;
+			TurnDirection = 1.f; // Force turning right back to start
+			break;
+		case ETurningPhase::BackToStart:
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			return;
+		default: ;
+		}
+	}
+
+	// Step in the explicit direction instead of interpolating
+	float const Step{ DegPerSec * DeltaSeconds * TurnDirection };
+	float const NewYaw{ CurrentYaw + Step };
+	SurvivorPawn->SetActorRotation(FRotator{ 0.f, NewYaw, 0.f });
+}

@@ -12,13 +12,14 @@ USteeringComponent_StukalovsAlex::USteeringComponent_StukalovsAlex()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Initializing the steering behaviors
+	Behaviors.emplace(typeid(FIdle_StukalovsAlex), std::make_unique<FIdle_StukalovsAlex>());
 	Behaviors.emplace(typeid(FSeek_StukalovsAlex), std::make_unique<FSeek_StukalovsAlex>());
 	Behaviors.emplace(typeid(FFlight_StukalovsAlex), std::make_unique<FFlight_StukalovsAlex>());
 	Behaviors.emplace(typeid(FLookAt_StukalovsAlex), std::make_unique<FLookAt_StukalovsAlex>());
 	Behaviors.emplace(typeid(FWander_StukalovsAlex), std::make_unique<FWander_StukalovsAlex>());
 
 	// Selecting the starting behavior
-	CurrentBehavior = Behaviors.at(typeid(FSeek_StukalovsAlex)).get();
+	CurrentBehavior = Behaviors.at(typeid(FIdle_StukalovsAlex)).get();
 }
 
 void USteeringComponent_StukalovsAlex::BeginPlay()
@@ -41,6 +42,7 @@ void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELeve
 	Super::TickComponent(DeltaSec, TickType, ThisTickFunction);
 	// 1. Calculating the steering
 	FSteeringOutput_StukalovsAlex const Steering{ CurrentBehavior->CalculateSteering(DeltaSec, *this) };
+	if (Steering.LinearVelocity < FVector2D{1.0, 1.0}) return;// No movement input
 	// 2. Applying the movement input to the owner
 	SurvivorPawn->AddMovementInput(FVector{Steering.LinearVelocity, 0.f}, 1.f);
 	// 3. Rotating the character in movement direction

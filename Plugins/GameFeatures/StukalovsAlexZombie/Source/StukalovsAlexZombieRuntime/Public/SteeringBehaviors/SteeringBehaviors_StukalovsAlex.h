@@ -21,6 +21,12 @@ protected:
     FVector2D Target;
 };
 
+class FIdle_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
+{
+public:
+    FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;
+};
+
 class FSeek_StukalovsAlex : public FSteeringBehaviorBase_StukalovsAlex
 {
 public:
