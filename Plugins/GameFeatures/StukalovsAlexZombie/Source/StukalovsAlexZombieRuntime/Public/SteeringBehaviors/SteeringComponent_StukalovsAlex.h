@@ -12,6 +12,7 @@
 #include "SteeringBehaviors_StukalovsAlex.h"
 #include "SteeringComponent_StukalovsAlex.generated.h"
 
+class ASurvivorPawn;
 class FSteeringBehaviorBase_StukalovsAlex;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -42,4 +43,8 @@ private:
 	std::unordered_map<std::type_index, std::unique_ptr<FSteeringBehaviorBase_StukalovsAlex>> Behaviors{};
 	FSteeringBehaviorBase_StukalovsAlex* CurrentBehavior{};// non-owning
 
+	UPROPERTY(VisibleAnywhere)
+	float DegPerSec{ 90.f };
+
+	ASurvivorPawn* SurvivorPawn{};
 };

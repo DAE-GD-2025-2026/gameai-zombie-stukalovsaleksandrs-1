@@ -20,7 +20,11 @@ public:
 	// Returns whether an item was successfully taken
 	bool TryTakingItem(ABaseItem& Item);
 
-	[[nodiscard]] bool IsInventoryFull() const;
+	[[nodiscard]] bool IsInventoryFull() const noexcept;
+
+	void RemoveValuelessElements() noexcept;
+
+	[[nodiscard]] float GetPickupRange() const noexcept;
 
 protected:
 	virtual void BeginPlay() override;

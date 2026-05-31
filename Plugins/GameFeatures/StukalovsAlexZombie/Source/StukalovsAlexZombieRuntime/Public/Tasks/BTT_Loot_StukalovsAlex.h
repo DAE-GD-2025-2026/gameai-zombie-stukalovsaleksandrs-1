@@ -2,10 +2,14 @@
 
 #pragma once
 
+#include <vector>
+
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTT_Loot_StukalovsAlex.generated.h"
 
+class USteeringComponent_StukalovsAlex;
+class UInventoryComponent;
 class ASurvivorPawn;
 class ABaseItem;
 class UInventoryManager_StukalovsAlex;
@@ -20,9 +24,17 @@ class STUKALOVSALEXZOMBIERUNTIME_API UBTT_Loot_StukalovsAlex final : public UBTT
 public:
 	UBTT_Loot_StukalovsAlex();
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	
 private:
 	// Returns whether the item was successfully used
-	static bool TryUsingItem(ABaseItem&, ASurvivorPawn&);
+	ASurvivorPawn* SurvivorPawn{};
+	USteeringComponent_StukalovsAlex* SteeringComponent{};
+	std::vector<ABaseItem*> ItemsToLoot;// not std::stack, bc I want to use std::find
+
+	UInventoryManager_StukalovsAlex* InventoryManager{};
 	
+	static bool TryUsingItem(ABaseItem&, ASurvivorPawn&);
+	void TryPushingItem(ABaseItem* Item) noexcept;
+	void MoveToItem(ABaseItem const& Item) noexcept;
 };

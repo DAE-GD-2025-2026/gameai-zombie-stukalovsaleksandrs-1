@@ -1,7 +1,9 @@
 ﻿#pragma once
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Village/House/House.h"
 
+class ABaseItem;
 class UBehaviorTreeComponent;
 class ASurvivorPawn;
 
@@ -20,7 +22,9 @@ namespace BTTUtils_StukalovsAlex
 		return Object;
 	}
 
-	void SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget);
+	void SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget) noexcept;
 
 	[[nodiscard]] bool IsPointInHouse(FVector const& Point, FHouseBounds const& Bounds) noexcept;
+
+	[[nodiscard]] TArray<ABaseItem*>  GetInventory(ASurvivorPawn const& SurvivorPawn) noexcept;
 }

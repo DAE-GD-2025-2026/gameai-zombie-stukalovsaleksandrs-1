@@ -62,15 +62,18 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 		{
 			BlackboardComponent->SetValueAsObject(HouseKey, House);
 		}
-		else if (ABaseItem* Item{ Cast<ABaseItem>(Actor) }; Item)
+
+		if (ABaseItem* Item{ Cast<ABaseItem>(Actor) }; Item)
 		{
 			// Check if this item is more valuable 
 			BlackboardComponent->SetValueAsObject(ItemKey, Item);
 		}
-		else if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
+
+		if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
 		{
 			BlackboardComponent->SetValueAsObject(ZombieKey, Zombie);
 		}
+
 	}
 
 	// Just for the moment when the damaged sense gets fixed
@@ -89,22 +92,25 @@ void UStudentPerceptor_StukalovsAlex::TickComponent(float const DeltaTime, enum 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	ASurvivorPawn* SurvivorPawn{ Cast<ASurvivorPawn>(GetOwner()) };
 	if (HealthComponent->GetHealth() < OldHealth)// Got hit by a zombie
 	{
+		OldHealth = HealthComponent->GetHealth();
 		// Getting the closest zombie and saving it to blackboard
 		TArray<AActor*> Zombies;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseZombie::StaticClass(), Zombies);
-		verify(Zombies.Num() > 0);// Got hit -> there must be a zombie
-		ABaseZombie* ClosestZombie{ Cast<ABaseZombie>(Zombies[0]) };
-		for (AActor* const Zombie : Zombies)
+		if(!Zombies.IsEmpty())
 		{
-			if (Zombie->GetDistanceTo(SurvivorPawn) < ClosestZombie->GetDistanceTo(SurvivorPawn))
+			ABaseZombie* ClosestZombie{ Cast<ABaseZombie>(Zombies[0]) };
+			for (AActor* const Zombie : Zombies)
 			{
-				ClosestZombie = Cast<ABaseZombie>(Zombie);
+				if (ASurvivorPawn* SurvivorPawn{ Cast<ASurvivorPawn>(GetOwner()) };
+					Zombie->GetDistanceTo(SurvivorPawn) < ClosestZombie->GetDistanceTo(SurvivorPawn))
+				{
+					ClosestZombie = Cast<ABaseZombie>(Zombie);
+				}
 			}
+			// Saving the closest zombie to blackboard
+			BlackboardComponent->SetValueAsObject(ZombieKey, ClosestZombie);
 		}
-		// Saving the closest zombie to blackboard
-		BlackboardComponent->SetValueAsObject(ZombieKey, ClosestZombie);
 	}
 }

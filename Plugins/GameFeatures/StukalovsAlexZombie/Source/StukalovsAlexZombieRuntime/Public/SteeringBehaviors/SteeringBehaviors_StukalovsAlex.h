@@ -1,7 +1,6 @@
 #pragma once
 
-#include "SteeringBehaviors/SteeringHelpers_StukalovsAlex.h"
-
+#include "SteeringBehaviors/SteeringOutput_StukalovsAlex.h"
 class USteeringComponent_StukalovsAlex;
 
 class FSteeringBehaviorBase_StukalovsAlex
@@ -20,17 +19,40 @@ public:
 
 protected:
     FVector2D Target;
-    
 };
 
 class FSeek_StukalovsAlex : public FSteeringBehaviorBase_StukalovsAlex
 {
 public:
-    explicit FSeek_StukalovsAlex(float DegPerSec = 90.f) noexcept;
-    virtual ~FSeek_StukalovsAlex() override;
+    virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;
+    virtual ~FSeek_StukalovsAlex() noexcept = default;
+};
+
+class FFlight_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
+{
+public:
+    virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;
+};
+
+class FLookAt_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
+{
+public:
+    virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;
+};
+
+class FWander_StukalovsAlex final : public FSeek_StukalovsAlex
+{
+public:
     virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;
 
 private:
-    float DegPerSec{};
-    
+    // Radius of a circle for selecting random target points,
+    // where center is the agent's center + agent's front vector times the offset.
+    float const TargetCircleRadius{ 200 },
+        TargetCircleOffset{ 400 }, 
+        // Max offset between 2 consecutive random angles
+        // NOTE: Added for smoothness
+        MaxTargetDegreesOffset{ 1.f };
+    float LastTargetDegrees{};
 };
+

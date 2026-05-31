@@ -1,8 +1,9 @@
-﻿#include "AIController.h"
+﻿#include "BTTUtils_StukalovsAlex.h"
+#include "AIController.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "Survivor/SurvivorPawn.h"
-#include "BTTUtils_StukalovsAlex.h"
 
+#include "InventoryManager_StukalovsAlex.h"
 #include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
 
 ASurvivorPawn* BTTUtils_StukalovsAlex::GetOwner(UBehaviorTreeComponent& OwnerComp) noexcept
@@ -16,20 +17,12 @@ ASurvivorPawn* BTTUtils_StukalovsAlex::GetOwner(UBehaviorTreeComponent& OwnerCom
 	return SurvivorPawn;
 }
 
-void BTTUtils_StukalovsAlex::SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget)
+void BTTUtils_StukalovsAlex::SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget) noexcept
 {
 	USteeringComponent_StukalovsAlex* SteeringBehaviorComponent{
 		SurvivorPawn.GetComponentByClass<USteeringComponent_StukalovsAlex>()
 	};
 	verify(SteeringBehaviorComponent);
-	// if (!SteeringBehaviorComponent)
-	// {
-	// 	USteeringComponent_StukalovsAlex* const NewSteeringBehaviorComponent{
-	// 		SurvivorPawn.GetWorld()->SpawnActor<USteeringComponent_StukalovsAlex>()
-	// 	};
-	// 	verify(NewSteeringBehaviorComponent);
-	// 	NewSteeringBehaviorComponent->RegisterComponent();
-	// }
 	SteeringBehaviorComponent->SetTarget(NewTarget);
 }
 
@@ -42,5 +35,14 @@ bool BTTUtils_StukalovsAlex::IsPointInHouse(FVector const& Point, FHouseBounds c
     
 	return (Point.X >= MinX && Point.X <= MaxX && 
 			Point.Y >= MinY && Point.Y <= MaxY);
+}
+
+TArray<ABaseItem*> BTTUtils_StukalovsAlex::GetInventory(ASurvivorPawn const& SurvivorPawn) noexcept
+{
+	// Getting inventory component
+	UInventoryComponent * const InventoryComponent{ SurvivorPawn.FindComponentByClass<UInventoryComponent>() };
+	verify(InventoryComponent);
+	// Getting the items
+	return InventoryComponent->GetInventory();
 }
 

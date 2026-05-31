@@ -25,7 +25,7 @@ UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	// 1. Getting the owner
-	ASurvivorPawn* SurvivorPawn{ BTTUtils_StukalovsAlex::GetOwner(OwnerComp) };
+	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	if (!SurvivorPawn) return EBTNodeResult::Failed;
 	
 	// Getting the currently visible house
@@ -66,48 +66,41 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	}
 #endif
 	
+	// Getting the owner
+	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
+	verify(SurvivorPawn);
+	
 	// 7. Requesting BT to keep the task alive
 	return EBTNodeResult::InProgress;
 }
 
 void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	// 1. Getting the owner
-	ASurvivorPawn* SurvivorPawn{BTTUtils_StukalovsAlex::GetOwner(OwnerComp) };
-	if (!SurvivorPawn)
-	{
-		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
-		return;
-	}
-	// 2. Finishing if the entire path was consumed
+	// Finishing if the entire path was consumed
 	FEnterHouseMemory* Memory = reinterpret_cast<FEnterHouseMemory*>(NodeMemory);
 	if (Memory->CurrentPointIdx >= Memory->Path.Num())
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
-	// 3. Saving the current waypoint data
+	// Saving the current waypoint data
 	FVector const& CurrentWaypoint{ Memory->Path[Memory->CurrentPointIdx] };
 
-	// 4. Advancing to the next waypoint if the current one is reached
+	// Advancing to the next waypoint if the current one is reached
 	if ((CurrentWaypoint - SurvivorPawn->GetActorLocation()).SizeSquared() <= WaypointAcceptanceRadius * WaypointAcceptanceRadius)
 	{
 		++Memory->CurrentPointIdx;
 	}
 	else
 	{
-		// 5. Setting the waypoint as arrival destination
+		// Setting the waypoint as arrival destination
 		BTTUtils_StukalovsAlex::SetSteeringTarget(*SurvivorPawn, {CurrentWaypoint.X, CurrentWaypoint.Y});
 	}
 }
 
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	// 1. Getting the owner
-	ASurvivorPawn* const SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
-	if (!SurvivorPawn) return EBTNodeResult::Aborted;
-
-	// 2. Removing all the momentum to not distort the other movement input
+	// Removing all the momentum to not distort the other movement input
 	SurvivorPawn->GetMovementComponent()->StopMovementImmediately();
 
 	return EBTNodeResult::Aborted;

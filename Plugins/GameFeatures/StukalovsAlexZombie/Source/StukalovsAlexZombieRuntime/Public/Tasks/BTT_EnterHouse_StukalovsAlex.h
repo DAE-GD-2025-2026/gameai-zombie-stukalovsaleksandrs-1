@@ -23,4 +23,5 @@ private:
 	UPROPERTY()
 	float WaypointAcceptanceRadius{ 50.f };
 
+	ASurvivorPawn* SurvivorPawn{};
 };

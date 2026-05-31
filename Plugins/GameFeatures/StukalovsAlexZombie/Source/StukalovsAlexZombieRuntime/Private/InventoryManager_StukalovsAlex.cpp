@@ -2,6 +2,9 @@
 
 #include "InventoryManager_StukalovsAlex.h"
 #include "Common/InventoryComponent.h"
+// Standard
+#include <ranges>
+#include <vector>
 
 UInventoryManager_StukalovsAlex::UInventoryManager_StukalovsAlex()
 {
@@ -24,9 +27,32 @@ bool UInventoryManager_StukalovsAlex::TryTakingItem(ABaseItem& Item)
 	return true;
 }
 
-bool UInventoryManager_StukalovsAlex::IsInventoryFull() const
+bool UInventoryManager_StukalovsAlex::IsInventoryFull() const noexcept
 {
 	return ItemCount == InventoryComponent->GetInventoryCapacity();
+}
+
+void UInventoryManager_StukalovsAlex::RemoveValuelessElements() noexcept
+{
+	UInventoryComponent* Inventory = InventoryComponent;
+	if (!Inventory) return;
+
+	auto Items{ InventoryComponent->GetInventory() };
+
+	// NOTE: Iterating in reverse order to avoid index-shifting issues
+	for (int32 const ItemIdx : std::ranges::views::iota(0, Inventory->GetInventoryCapacity()) | std::views::reverse)
+	{
+		if (ABaseItem const* const Item = Items[ItemIdx]; Item and Item->GetValue() == 0)
+		{
+			Inventory->RemoveItem(ItemIdx);
+			--ItemCount;
+		}
+	}
+}
+
+float UInventoryManager_StukalovsAlex::GetPickupRange() const noexcept
+{
+	return InventoryComponent->GetPickupRange();
 }
 
 void UInventoryManager_StukalovsAlex::BeginPlay()
