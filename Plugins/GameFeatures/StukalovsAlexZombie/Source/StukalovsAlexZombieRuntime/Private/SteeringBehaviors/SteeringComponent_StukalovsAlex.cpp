@@ -44,9 +44,11 @@ void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELeve
 	// 2. Applying the movement input to the owner
 	SurvivorPawn->AddMovementInput(FVector{Steering.LinearVelocity, 0.f}, 1.f);
 	// 3. Rotating the character in movement direction
-	if (!Steering.LinearVelocity.IsNearlyZero())
+	static constexpr float SharpnessFactor{ 5.f };// How fast the lerp catches up with target (higher - faster, lower - slower)
+	SmoothedVelocity = FMath::Lerp(SmoothedVelocity, Steering.LinearVelocity, DeltaSec * SharpnessFactor);
+	if (!SmoothedVelocity.IsNearlyZero(0.1f))
 	{
-		FVector const MoveDir{ Steering.LinearVelocity.X, Steering.LinearVelocity.Y, 0.f };
+		FVector const MoveDir{ SmoothedVelocity.X, SmoothedVelocity.Y, 0.f };
 		FRotator const TargetRotation{ MoveDir.Rotation() };
 		FRotator const CurrentRotation{ SurvivorPawn->GetActorRotation() };
 		FRotator const NewRotation{ FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSec, DegPerSec) };

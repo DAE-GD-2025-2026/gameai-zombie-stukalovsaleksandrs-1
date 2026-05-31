@@ -47,4 +47,5 @@ private:
 	float DegPerSec{ 90.f };
 
 	ASurvivorPawn* SurvivorPawn{};
+	FVector2D SmoothedVelocity{};	
 };
