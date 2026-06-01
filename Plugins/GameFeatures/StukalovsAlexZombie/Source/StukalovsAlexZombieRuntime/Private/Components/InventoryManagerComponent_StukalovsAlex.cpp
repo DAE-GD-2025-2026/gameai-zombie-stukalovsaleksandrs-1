@@ -47,7 +47,7 @@ void UInventoryManagerComponent_StukalovsAlex::RemoveValuelessElements() noexcep
 		if (ABaseItem const* const Item{ Items[ItemIdx] }; Item and Item->GetValue() == 0)
 		{
 			// Why weapons have values of 0?
-			if (AWeapon const* const Weapon{ Cast<AWeapon>(Item) }; !Weapon)// Not throwing away weapons
+			// if (AWeapon const* const Weapon{ Cast<AWeapon>(Item) }; !Weapon)// Not throwing away weapons
 			{
 				Inventory->RemoveItem(ItemIdx);
 				--ItemCount;

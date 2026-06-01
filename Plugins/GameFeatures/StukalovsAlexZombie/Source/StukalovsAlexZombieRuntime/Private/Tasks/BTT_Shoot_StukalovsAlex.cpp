@@ -13,7 +13,7 @@
 
 UBTT_Shoot_StukalovsAlex::UBTT_Shoot_StukalovsAlex()
 {
-	bNotifyTick = true;
+	bNotifyTick = false;
 	NodeName = "Shoot";
 }
 
@@ -33,34 +33,40 @@ EBTNodeResult::Type UBTT_Shoot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent
 	verify(SteeringComponent);
 	SteeringComponent->SetBehavior<FLookAt_StukalovsAlex>();
 
-	// Getting the inventory manager(used to remove guns after running out of ammo)
+	// Getting the inventory manager (used to remove guns after running out of ammo)
 	InventoryManager = SurvivorPawn->GetComponentByClass<UInventoryManagerComponent_StukalovsAlex>();
 	verify(InventoryManager);
 
 	// Getting the guns
-	UpdateGuns(OwnerComp);
-
-	// Letting the tick run
-	return EBTNodeResult::InProgress;
-}
-
-void UBTT_Shoot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float const DeltaSeconds)
-{
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+	if (!SelectGuns()) return EBTNodeResult::Failed;
 
 	FVector const ZombieLocation{ Zombie->GetActorLocation() };
 	SteeringComponent->SetTarget({ZombieLocation.X, ZombieLocation.Y});
 	
 	SelectProperWeapon(OwnerComp);
 	
-	Shoot(OwnerComp);
+	Shoot(OwnerComp);// Shooting once, then seeing if enemy is still alive
 
+	// Removing the zombie from the detection, so it gets re-detected
+	UBlackboardComponent& BlackboardComponent{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+	BlackboardComponent.SetValueAsObject(ZombieKey.SelectedKeyName, nullptr);
+	
 	InventoryManager->RemoveValuelessElements();
 
-	UpdateGuns(OwnerComp);
+	return EBTNodeResult::Succeeded;
+	// FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	//
+	// // Letting the tick run
+	// return EBTNodeResult::InProgress;
 }
 
-void UBTT_Shoot_StukalovsAlex::UpdateGuns(UBehaviorTreeComponent& OwnerComp)
+void UBTT_Shoot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float const DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+}
+
+bool UBTT_Shoot_StukalovsAlex::SelectGuns()
 {
 	Shotgun = nullptr;
 	Pistol = nullptr;
@@ -77,11 +83,7 @@ void UBTT_Shoot_StukalovsAlex::UpdateGuns(UBehaviorTreeComponent& OwnerComp)
 		if (Shotgun and Pistol) break;
 	}
 	
-	// No guns left
-	if (not (Pistol or Shotgun))
-	{
-		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
-	}
+	return Pistol or Shotgun;
 }
 
 void UBTT_Shoot_StukalovsAlex::SelectProperWeapon(UBehaviorTreeComponent& OwnerComp) noexcept

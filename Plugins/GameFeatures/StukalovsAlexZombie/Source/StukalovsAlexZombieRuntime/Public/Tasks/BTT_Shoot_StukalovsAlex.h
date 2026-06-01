@@ -24,11 +24,13 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-protected:
+private:
 	UPROPERTY()
 	float MaxShotgunDistance{ 200.f };// Max distance to use shotgun(in cm by default)
 
-private:
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ZombieKey;
+
 	ASurvivorPawn* SurvivorPawn{};
 	UInventoryManagerComponent_StukalovsAlex* InventoryManager{};
 	USteeringComponent_StukalovsAlex* SteeringComponent{};
@@ -39,9 +41,11 @@ private:
 	ABaseItem* CurrentWeapon{};
 	AShotgun* Shotgun{};
 	APistol* Pistol{};
+	
 
 	// Gets the first pistol and shotgun if available
-	void UpdateGuns(UBehaviorTreeComponent& OwnerComp);
+	// Retuns false if no guns available, true otherwise
+	bool SelectGuns();
 	// Sets the proper weapon as current depending on weapon availability and distance from target
 	void SelectProperWeapon(UBehaviorTreeComponent& OwnerComp) noexcept;
 	void Shoot(UBehaviorTreeComponent& OwnerComp) const noexcept;

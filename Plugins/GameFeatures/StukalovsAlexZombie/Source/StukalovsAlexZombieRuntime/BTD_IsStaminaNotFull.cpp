@@ -3,6 +3,7 @@
 
 #include "BTD_IsStaminaNotFull.h"
 
+#include "AIController.h"
 #include "Survivor/SurvivorPawn.h"
 
 UBTD_IsStaminaNotFull::UBTD_IsStaminaNotFull()
@@ -12,9 +13,9 @@ UBTD_IsStaminaNotFull::UBTD_IsStaminaNotFull()
 
 bool UBTD_IsStaminaNotFull::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	// Getting the survivor
-	ASurvivorPawn const * const SurvivorPawn{ Cast<ASurvivorPawn>(OwnerComp.GetOwner()) };
-	verify(SurvivorPawn);
+	// Getting the survivor pawn
+	APawn* Pawn{ OwnerComp.GetAIOwner()->GetPawn() };
+	ASurvivorPawn* SurvivorPawn{ CastChecked<ASurvivorPawn>(Pawn) };
 
 	// Getting the stamina component
 	UStaminaComponent const * const StaminaComponent{ SurvivorPawn->GetComponentByClass<UStaminaComponent>() };

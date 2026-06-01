@@ -3,6 +3,8 @@
 
 #include "Decorators/BTD_IsInventoryNotFull_StukalovsAlex.h"
 
+#include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/InventoryManagerComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
@@ -15,8 +17,11 @@ bool UBTD_IsInventoryNotFull_StukalovsAlex::CalculateRawConditionValue(UBehavior
                                                                     uint8* NodeMemory) const
 {
 	// Getting the survivor
-	ASurvivorPawn const * const SurvivorPawn{ Cast<ASurvivorPawn>(OwnerComp.GetOwner()) };
-	if (not SurvivorPawn) return false;
+	UBlackboardComponent* BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
+	verify(BlackboardComponent);
+	// Getting the survivor pawn
+	APawn* Pawn{ OwnerComp.GetAIOwner()->GetPawn() };
+	ASurvivorPawn* SurvivorPawn{ CastChecked<ASurvivorPawn>(Pawn) };
 	// Getting the inventory manager
 	UInventoryManagerComponent_StukalovsAlex* const InventoryManager{ SurvivorPawn->GetComponentByClass<UInventoryManagerComponent_StukalovsAlex>() };
 	verify(InventoryManager);

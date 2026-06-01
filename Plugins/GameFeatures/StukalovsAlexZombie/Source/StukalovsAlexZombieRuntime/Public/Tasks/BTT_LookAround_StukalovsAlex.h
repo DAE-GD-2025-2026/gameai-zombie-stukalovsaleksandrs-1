@@ -26,7 +26,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AbsDegToTurn{ 150.f };
 	UPROPERTY(EditAnywhere)
-	float DegPerSec{ 120.f };
+	float DegPerSec{ 160.f };
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector ShouldLookAroundKey;
 
