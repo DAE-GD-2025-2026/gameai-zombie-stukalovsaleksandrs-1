@@ -5,5 +5,5 @@
 
 bool UBTD_IsInHouse::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	return false;
+	
 }

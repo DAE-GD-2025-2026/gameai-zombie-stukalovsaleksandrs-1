@@ -22,6 +22,8 @@ namespace BTTUtils_StukalovsAlex
 		return Object;
 	}
 
+	[[nodiscard]] UBlackboardComponent& GetBlackboard(UBehaviorTreeComponent& OwnerComp) noexcept;
+
 	void SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget) noexcept;
 
 	[[nodiscard]] bool IsPointInHouse(FVector const& Point, FHouseBounds const& Bounds) noexcept;

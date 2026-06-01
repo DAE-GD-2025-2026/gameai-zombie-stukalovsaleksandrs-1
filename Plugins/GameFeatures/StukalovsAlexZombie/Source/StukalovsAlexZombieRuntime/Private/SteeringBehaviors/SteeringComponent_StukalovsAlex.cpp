@@ -40,9 +40,9 @@ void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELeve
                                        FActorComponentTickFunction* const ThisTickFunction)
 {
 	Super::TickComponent(DeltaSec, TickType, ThisTickFunction);
+	if (typeid(CurrentBehavior) == typeid(FIdle_StukalovsAlex)) return;// Not moving in idle state
 	// 1. Calculating the steering
 	FSteeringOutput_StukalovsAlex const Steering{ CurrentBehavior->CalculateSteering(DeltaSec, *this) };
-	if (Steering.LinearVelocity < FVector2D{1.0, 1.0}) return;// No movement input
 	// 2. Applying the movement input to the owner
 	SurvivorPawn->AddMovementInput(FVector{Steering.LinearVelocity, 0.f}, 1.f);
 	// 3. Rotating the character in movement direction

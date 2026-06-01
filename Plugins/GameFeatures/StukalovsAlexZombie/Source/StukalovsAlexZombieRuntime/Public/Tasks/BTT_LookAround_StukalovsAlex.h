@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTT_LookAround_StukalovsAlex.generated.h"
 
@@ -25,6 +26,8 @@ private:
 	float AbsDegToTurn{ 150.f };
 	UPROPERTY(EditAnywhere)
 	float DegPerSec{ 120.f };
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ShouldLookAroundKey;
 
 	float StartYaw{};
 	float TargetYaw{};
@@ -33,4 +36,6 @@ private:
     
 	ASurvivorPawn* SurvivorPawn{};
 	USteeringComponent_StukalovsAlex* SteeringComponent{};
+	
+
 };

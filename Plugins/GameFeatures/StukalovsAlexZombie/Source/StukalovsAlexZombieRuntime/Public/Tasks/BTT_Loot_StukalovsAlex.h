@@ -37,4 +37,7 @@ private:
 	static bool TryUsingItem(ABaseItem&, ASurvivorPawn&);
 	void TryPushingItem(ABaseItem* Item) noexcept;
 	void MoveToItem(ABaseItem const& Item) noexcept;
+
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ShouldLookAroundKey;
 };

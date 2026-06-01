@@ -13,7 +13,9 @@
 struct FEnterHouseMemory final
 {
 	TArray<FVector> Path;
-	int32 CurrentPointIdx{};
+	uint32_t CurrentPointIdx{};
+	std::array<AHouse*, 5> VisitedHouses{};
+	uint32_t VisitedHouseCount{};
 };
 
 UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
@@ -40,6 +42,27 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 		return EBTNodeResult::Failed;
 	}
 	
+	// Adding the current house to the list of the visited ones if it is not there already
+	FEnterHouseMemory* Memory{ reinterpret_cast<FEnterHouseMemory*>(NodeMemory) };
+	if (std::ranges::find_if(Memory->VisitedHouses, [House](AHouse const * const VisitedHouse)
+	{
+		return House == VisitedHouse;
+	}) == Memory->VisitedHouses.end())// Not found
+	{
+		// Adding the house
+		++Memory->VisitedHouseCount %= Memory->VisitedHouses.size();
+		Memory->VisitedHouses[Memory->VisitedHouseCount] = House;
+	}
+	else
+	{
+		// Not going into a house that's already visited
+		return EBTNodeResult::Failed;
+	}
+
+	// Requesting to look around the house
+	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, true);
+	
 	// Going towards the house. Setting steering behavior to seek
 	USteeringComponent_StukalovsAlex* SteeringComponent{ SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>() };
 	verify(SteeringComponent);
@@ -54,10 +77,10 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	};
 	
 	// 6. Writing the path's data to the node's memory block to access it in Tick()
-	FEnterHouseMemory* Memory{ reinterpret_cast<FEnterHouseMemory*>(NodeMemory) };
 	Memory->Path = Path;
 	Memory->CurrentPointIdx = 1;// Skipping SurvivorPawn's own location
-
+	
+	
 	// Visualizing waypoints
 #ifdef DEBUG_WAYPOINTS
 	for (FVector const Waypoint : Path)
@@ -78,7 +101,7 @@ void UBTT_EnterHouse_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 {
 	// Finishing if the entire path was consumed
 	FEnterHouseMemory* Memory = reinterpret_cast<FEnterHouseMemory*>(NodeMemory);
-	if (Memory->CurrentPointIdx >= Memory->Path.Num())
+	if (Memory->CurrentPointIdx >= static_cast<uint32_t>(Memory->Path.Num()))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;

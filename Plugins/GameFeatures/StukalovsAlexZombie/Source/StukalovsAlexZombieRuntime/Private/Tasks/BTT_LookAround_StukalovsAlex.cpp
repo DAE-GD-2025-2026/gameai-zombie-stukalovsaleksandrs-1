@@ -21,6 +21,10 @@ EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	Phase = ETurningPhase::Right;
 	TargetYaw = AbsDegToTurn;
 
+	// Setting the JustSpawned key to false
+	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, false);
+	
 	return EBTNodeResult::InProgress;
 }
 
@@ -29,7 +33,7 @@ void UBTT_LookAround_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	float const CurrentYaw{ static_cast<float>(SurvivorPawn->GetActorRotation().Yaw) };
-	float const Remaining{ static_cast<float>(FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw))) };
+	float const Remaining{ FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw)) };
 
 	if (Remaining < 2.f)
 	{
@@ -38,12 +42,12 @@ void UBTT_LookAround_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 		case ETurningPhase::Right:
 			Phase = ETurningPhase::Left;
 			TargetYaw = StartYaw - AbsDegToTurn;
-			TurnDirection = -1.f; // Force turning left (through 0)
+			TurnDirection = -1.f;
 			break;
 		case ETurningPhase::Left:
 			Phase = ETurningPhase::BackToStart;
 			TargetYaw = StartYaw;
-			TurnDirection = 1.f; // Force turning right back to start
+			TurnDirection = 1.f;
 			break;
 		case ETurningPhase::BackToStart:
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
@@ -52,7 +56,6 @@ void UBTT_LookAround_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 		}
 	}
 
-	// Step in the explicit direction instead of interpolating
 	float const Step{ DegPerSec * DeltaSeconds * TurnDirection };
 	float const NewYaw{ CurrentYaw + Step };
 	SurvivorPawn->SetActorRotation(FRotator{ 0.f, NewYaw, 0.f });

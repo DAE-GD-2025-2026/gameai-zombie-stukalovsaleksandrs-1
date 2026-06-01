@@ -17,6 +17,13 @@ ASurvivorPawn* BTTUtils_StukalovsAlex::GetOwner(UBehaviorTreeComponent& OwnerCom
 	return SurvivorPawn;
 }
 
+UBlackboardComponent& BTTUtils_StukalovsAlex::GetBlackboard(UBehaviorTreeComponent& OwnerComp) noexcept
+{
+	UBlackboardComponent* const BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
+	verify(BlackboardComponent);
+	return *BlackboardComponent;
+}
+
 void BTTUtils_StukalovsAlex::SetSteeringTarget(ASurvivorPawn& SurvivorPawn, FVector2D NewTarget) noexcept
 {
 	USteeringComponent_StukalovsAlex* SteeringBehaviorComponent{

@@ -20,8 +20,12 @@ public:
 	virtual uint16 GetInstanceMemorySize() const override;
 	
 private:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	float WaypointAcceptanceRadius{ 50.f };
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ShouldLookAroundKey;
 
 	ASurvivorPawn* SurvivorPawn{};
+	
+	
 };

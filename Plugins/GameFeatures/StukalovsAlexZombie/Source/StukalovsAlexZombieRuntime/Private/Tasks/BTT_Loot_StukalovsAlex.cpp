@@ -29,8 +29,11 @@ EBTNodeResult::Type UBTT_Loot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent&
 	verify(SteeringComponent);
 	SteeringComponent->SetBehavior<FSeek_StukalovsAlex>();
 	
+	// Requesting to look around for more pickups
+	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, true);
+	
 	// Getting inventory components
-
 	InventoryManager = SurvivorPawn->FindComponentByClass<UInventoryManager_StukalovsAlex>();
 	verify(InventoryManager);
 

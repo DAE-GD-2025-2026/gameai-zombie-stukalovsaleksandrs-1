@@ -10,6 +10,7 @@
 #include "Perception/AISense_Damage.h"
 #include "StudentPerceptor_StukalovsAlex.generated.h"
 
+class AHouse;
 class UHealthComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -43,6 +44,4 @@ private:
 	UHealthComponent* HealthComponent{};
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
-
-	
 };
