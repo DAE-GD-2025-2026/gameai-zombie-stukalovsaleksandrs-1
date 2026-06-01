@@ -56,6 +56,23 @@ void UStudentPerceptor_StukalovsAlex::BeginPlay()
 	verify(HouseTrackerComponent);
 }
 
+// Prioritizing guns, then medkits, then food
+uint32_t GetItemPriority(ABaseItem const& Item)
+{
+	switch (Item.GetItemType())
+	{
+	case EItemType::Shotgun:
+		return 3;
+	case EItemType::Pistol:
+		return 3;
+	case EItemType::Medkit:
+		return 2;
+	case EItemType::Food:
+		return 1;		
+	default: return 0;
+	}
+}
+
 void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStimulus const Stimulus)
 {
 	// Performing input validation
@@ -90,7 +107,7 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 			if (ABaseItem* CurrentItem{ (Cast<ABaseItem>(BlackboardComponent->GetValueAsObject(ItemKeyName))) })
 			{
 				// Choosing the closest between this item and the currently sensed one
-				Item = Actor->GetDistanceTo(CurrentItem) < Actor->GetDistanceTo(Item) ? CurrentItem : Item;
+				Item = GetItemPriority(*CurrentItem) < GetItemPriority(*Item) ? CurrentItem : Item;
 			}
 
 			// Adding the closest item to the blackboard
