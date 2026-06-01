@@ -13,7 +13,8 @@ UBTD_HealthNotFull_StukalovsAlex::UBTD_HealthNotFull_StukalovsAlex()
 bool UBTD_HealthNotFull_StukalovsAlex::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	// Getting the survivor
-	ASurvivorPawn const * const SurvivorPawn{ CastChecked<ASurvivorPawn>(OwnerComp.GetOwner()) };
+	ASurvivorPawn const * const SurvivorPawn{ Cast<ASurvivorPawn>(OwnerComp.GetOwner()) };
+	if (not SurvivorPawn) return false;
 
 	// Seeing if the health is full
 	UHealthComponent const * const HealthComponent{ SurvivorPawn->GetComponentByClass<UHealthComponent>() };

@@ -102,8 +102,6 @@ bool UBTT_Loot_StukalovsAlex::TryPushingItem(ABaseItem* Item) noexcept
 
 void UBTT_Loot_StukalovsAlex::MoveToItem(ABaseItem const& Item) const noexcept
 {
-	// TArray Path{ SurvivorPawn->CalculatePath(Item.GetActorLocation()) };
-	// verify(!Path.IsEmpty());
 	FVector const ItemLocation{ Item.GetActorLocation() };
 	SteeringComponent->SetTarget({ItemLocation.X, ItemLocation.Y});
 }
