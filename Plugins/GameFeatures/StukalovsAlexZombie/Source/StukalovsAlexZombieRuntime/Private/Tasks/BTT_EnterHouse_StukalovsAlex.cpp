@@ -8,7 +8,7 @@
 #include "Tasks/BTTUtils_StukalovsAlex.h"
 #include "Village/House/House.h"
 
-#define DEBUG_WAYPOINTS
+// #define DEBUG_WAYPOINTS
 
 struct FEnterHouseMemory final
 {

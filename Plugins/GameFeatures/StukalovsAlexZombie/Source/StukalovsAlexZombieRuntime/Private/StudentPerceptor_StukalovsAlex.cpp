@@ -96,8 +96,9 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 
 			// Adding the closest house to the blackboard
 			BlackboardComponent->SetValueAsObject(HouseKeyName, House);
-
+#ifdef ENABLE_DEBUG_VISUALS
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Updated closest unvisited house"));
+#endif
 		}
 
 		if (ABaseItem* Item{ Cast<ABaseItem>(Actor) }; Item)
@@ -112,7 +113,9 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 
 			// Adding the closest item to the blackboard
 			BlackboardComponent->SetValueAsObject(ItemKeyName, Item);
+#ifdef ENABLE_DEBUG_VISUALS
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Updated closest item"));
+#endif
 		}
 
 		if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
@@ -127,7 +130,9 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 	{
 		if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
 		{
+	#ifdef ENABLE_DEBUG_VISUALIZATION
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Zombie hit character"));
+	#endif
 			BlackboardComponent->SetValueAsObject(ZombieKey.SelectedKeyName, Zombie);
 		}
 	}

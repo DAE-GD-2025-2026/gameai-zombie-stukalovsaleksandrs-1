@@ -122,6 +122,8 @@ void UBTT_Shoot_StukalovsAlex::SelectProperWeapon(UBehaviorTreeComponent& OwnerC
 
 void UBTT_Shoot_StukalovsAlex::Shoot(UBehaviorTreeComponent& OwnerComp) const noexcept
 {
+#ifdef ENABLE_DEBUG_VISUALIZATION
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Shot"));
+#endif
 	CurrentWeapon->UseItem(*SurvivorPawn);// Shooting
 }

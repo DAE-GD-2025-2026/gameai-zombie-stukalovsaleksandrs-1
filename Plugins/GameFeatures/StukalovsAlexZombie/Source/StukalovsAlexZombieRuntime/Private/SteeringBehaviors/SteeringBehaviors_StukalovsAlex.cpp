@@ -43,12 +43,17 @@ FSteeringOutput_StukalovsAlex FFlight_StukalovsAlex::CalculateSteering(float Del
 {
 	// Moving away from the target
 	FVector2D const OwnerLocation{ SteeringComponent.GetOwnerLocation2D() };
+	FVector2D const OldTarget{ Target };
 	FVector2D const LinearVelocity{ OwnerLocation - Target };
 
-	SteeringComponent.SetTarget(OwnerLocation + LinearVelocity);
+	SteeringComponent.SetTarget(OwnerLocation + LinearVelocity * 100.f);
 
 	// Delegating to not duplicate logic
-	return FSeek_StukalovsAlex::CalculateSteering(DeltaTime, SteeringComponent);
+	FSteeringOutput_StukalovsAlex const Output{ FSeek_StukalovsAlex::CalculateSteering(DeltaTime, SteeringComponent) };
+	
+	SteeringComponent.SetTarget(OldTarget);
+
+	return Output;
 }
 
 FSteeringOutput_StukalovsAlex FLookAt_StukalovsAlex::CalculateSteering(float DeltaTime,

@@ -31,7 +31,9 @@ bool UHouseTrackerComponent_StukalovsAlex::IsHouseVisited(AHouse const& House) c
 void UHouseTrackerComponent_StukalovsAlex::SaveHouseAsVisited(AHouse& House) noexcept
 {
 	if (IsHouseVisited(House)) return;// Not re-saving a visited house
+#ifdef ENABLE_DEBUG_VISUALIZATION
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Marked house as visited"));
+#endif
 	VisitedHouses[OldestHouseIdx] = &House;
 	OldestHouseIdx = (OldestHouseIdx + 1) % MaxVisitedHouses;
 }
