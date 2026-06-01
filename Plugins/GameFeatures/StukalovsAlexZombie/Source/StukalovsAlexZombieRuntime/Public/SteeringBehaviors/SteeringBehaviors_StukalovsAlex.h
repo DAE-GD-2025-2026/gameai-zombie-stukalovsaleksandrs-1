@@ -19,6 +19,8 @@ public:
 
 protected:
     FVector2D Target;
+
+    [[nodiscard]] static FVector2D GetClosestNavigablePoint(FVector2D Point, AActor& Owner); 
 };
 
 class FIdle_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
@@ -34,7 +36,7 @@ public:
     virtual ~FSeek_StukalovsAlex() noexcept = default;
 };
 
-class FFlight_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
+class FFlight_StukalovsAlex final : public FSeek_StukalovsAlex
 {
 public:
     virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const&) noexcept override;

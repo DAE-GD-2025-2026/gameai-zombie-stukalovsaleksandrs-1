@@ -20,12 +20,6 @@ EBTNodeResult::Type UBTT_Loot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent&
 	// Getting the pickup from the vicinity
 	ABaseItem * const Item{ BTTUtils_StukalovsAlex::GetBlackboardObject<ABaseItem>(OwnerComp, TEXT("Item")) };
 	TryPushingItem(Item);
-	// if (!TryPushingItem(Item))
-	// {
-	// 	// Failed to push the item
-	// 	UnsetBlackboardItem(OwnerComp);
-	// 	return EBTNodeResult::Failed;
-	// }
 	if (ItemsToLoot.empty())
 	{
 		// Requesting to look around for more pickups

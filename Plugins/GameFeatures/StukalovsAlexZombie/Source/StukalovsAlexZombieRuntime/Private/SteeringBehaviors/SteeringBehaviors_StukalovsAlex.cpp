@@ -5,14 +5,25 @@
 #include "SteeringOutput_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
+FVector2D FSteeringBehaviorBase_StukalovsAlex::GetClosestNavigablePoint(FVector2D const Point, AActor& Owner) 
+{
+	ASurvivorPawn const * const SurvivorPawn{ CastChecked<ASurvivorPawn>(&Owner) };
+	auto Path{ SurvivorPawn->CalculatePath(FVector{Point, 0.f}) };
+	if (Path.IsEmpty()) return Point;	
+	return {Path[1].X, Path[1].Y};
+}
+
 FSteeringOutput_StukalovsAlex FIdle_StukalovsAlex::CalculateSteering(float DeltaTime,
-	USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
+                                                                     USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
 {
 	return FSteeringOutput_StukalovsAlex{};	
 }
 
 FSteeringOutput_StukalovsAlex FSeek_StukalovsAlex::CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
 {
+	// Getting the closest navigable point to the character in the direction of the target
+	SteeringComponent.SetTarget(GetClosestNavigablePoint(Target, *SteeringComponent.GetOwner()));
+	
 	FVector2D LinearVelocity{ Target - SteeringComponent.GetOwnerLocation2D() };
 	if (LinearVelocity.SizeSquared() < 1.f)
 	{
@@ -30,18 +41,14 @@ FSteeringOutput_StukalovsAlex FSeek_StukalovsAlex::CalculateSteering(float Delta
 FSteeringOutput_StukalovsAlex FFlight_StukalovsAlex::CalculateSteering(float DeltaTime,
 	USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
 {
-	FVector2D LinearVelocity{ SteeringComponent.GetOwnerLocation2D() - Target };
-	if (LinearVelocity.SizeSquared() < 1.f)
-	{
-		LinearVelocity = {};
-	}
-	else
-	{
-		LinearVelocity.Normalize();
-	}
-	return FSteeringOutput_StukalovsAlex{
-		LinearVelocity
-	};	
+	// Moving away from the target
+	FVector2D const OwnerLocation{ SteeringComponent.GetOwnerLocation2D() };
+	FVector2D const LinearVelocity{ OwnerLocation - Target };
+
+	SteeringComponent.SetTarget(OwnerLocation + LinearVelocity);
+
+	// Delegating to not duplicate logic
+	return FSeek_StukalovsAlex::CalculateSteering(DeltaTime, SteeringComponent);
 }
 
 FSteeringOutput_StukalovsAlex FLookAt_StukalovsAlex::CalculateSteering(float DeltaTime,
@@ -76,22 +83,8 @@ FSteeringOutput_StukalovsAlex FWander_StukalovsAlex::CalculateSteering(float Del
 	//// Calculating new target's coordinates
 	FVector const AgentLocation{ Agent->GetActorLocation() };
 	FVector2D const NewTargetLocation{ FVector2D{AgentLocation.X, AgentLocation.Y} + TargetCircleOffset  * AgentForwardVector + TargetCircleRadius * FVector2D(FMath::Cos(NewTargetDegrees), FMath::Sin(NewTargetDegrees) ) };
-
-	// Getting the closest navigable point to the character in the direction of the target
-	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(Agent->GetWorld());
-	ASurvivorPawn* SurvivorPawn{ Cast<ASurvivorPawn>(Agent) };
-	verify(NavSys && SurvivorPawn);
-	auto Path{ SurvivorPawn->CalculatePath(FVector{NewTargetLocation, 0.f}) };
-	if (not Path.IsEmpty())
-	{
-		// Note Path[0] is the current location
-		SteeringComponent.SetTarget({Path[1].X, Path[1].Y});
-	}
-	else
-	{
-		SteeringComponent.SetTarget(NewTargetLocation);
-	}
-
+	SteeringComponent.SetTarget(NewTargetLocation);
+	
 	// Steering
 	return FSeek_StukalovsAlex::CalculateSteering(DeltaTime, SteeringComponent);
 }
