@@ -17,14 +17,7 @@ EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 {
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	verify(SurvivorPawn);
-
-	// Debug, just to see if it'll cause the character to freeze again with this constraint
-	SurvivorPawn->SetActorRotation(FRotator{ 0.f, 0.f, 0.f });
 	
-	StartYaw = SurvivorPawn->GetActorRotation().Yaw;
-	Phase = ETurningPhase::Right;
-	TargetYaw = AbsDegToTurn;
-
 	// Setting the JustSpawned key to false
 	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
 	if (!Blackboard.GetValueAsBool(ShouldLookAroundKey.SelectedKeyName))
@@ -33,6 +26,13 @@ EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	}
 	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, false);
 
+	// Debug, just to see if it'll cause the character to freeze again with this constraint
+	SurvivorPawn->SetActorRotation(FRotator{ 0.f, 0.f, 0.f });
+	
+	StartYaw = SurvivorPawn->GetActorRotation().Yaw;
+	Phase = ETurningPhase::Right;
+	TargetYaw = AbsDegToTurn;
+	
 	// Getting the house tracker component
 	HouseTrackerComponent = SurvivorPawn->GetComponentByClass<UHouseTrackerComponent_StukalovsAlex>();
 	verify(HouseTrackerComponent);

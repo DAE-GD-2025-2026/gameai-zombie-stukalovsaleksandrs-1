@@ -5,6 +5,9 @@
 // Standard
 #include <ranges>
 
+#include "Items/Shotgun.h"
+#include "Items/Weapon.h"
+
 UInventoryManagerComponent_StukalovsAlex::UInventoryManagerComponent_StukalovsAlex()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -41,10 +44,14 @@ void UInventoryManagerComponent_StukalovsAlex::RemoveValuelessElements() noexcep
 	// NOTE: Iterating in reverse order to avoid index-shifting issues
 	for (int32 const ItemIdx : std::ranges::views::iota(0, Inventory->GetInventoryCapacity()) | std::views::reverse)
 	{
-		if (ABaseItem const* const Item = Items[ItemIdx]; Item and Item->GetValue() == 0)
+		if (ABaseItem const* const Item{ Items[ItemIdx] }; Item and Item->GetValue() == 0)
 		{
-			Inventory->RemoveItem(ItemIdx);
-			--ItemCount;
+			// Why weapons have values of 0?
+			if (AWeapon const* const Weapon{ Cast<AWeapon>(Item) }; !Weapon)// Not throwing away weapons
+			{
+				Inventory->RemoveItem(ItemIdx);
+				--ItemCount;
+			}
 		}
 	}
 }

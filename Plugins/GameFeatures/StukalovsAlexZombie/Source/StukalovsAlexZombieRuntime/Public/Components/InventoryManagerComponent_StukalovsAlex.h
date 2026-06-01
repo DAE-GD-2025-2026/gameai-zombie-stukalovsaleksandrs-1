@@ -26,6 +26,23 @@ public:
 
 	[[nodiscard]] float GetPickupRange() const noexcept;
 
+	template <typename T> requires std::derived_from<T, ABaseItem>
+	[[nodiscard]] TArray<T*> GetItemsOfType() noexcept
+	{
+		TArray Items{ InventoryComponent->GetInventory() };
+		TArray<T*> Result;
+    
+		for (ABaseItem* Item : Items)
+		{
+			if (T* CastedItem = Cast<T>(Item))
+			{
+				Result.Add(CastedItem);
+			}
+		}
+    
+		return Result;// Empty array if nothing is found
+	}
+
 protected:
 	virtual void BeginPlay() override;
 	

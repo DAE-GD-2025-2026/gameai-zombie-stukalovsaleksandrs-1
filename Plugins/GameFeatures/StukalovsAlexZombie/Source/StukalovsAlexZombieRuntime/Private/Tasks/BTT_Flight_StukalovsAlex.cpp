@@ -25,7 +25,10 @@ EBTNodeResult::Type UBTT_Flight_StukalovsAlex::ExecuteTask(UBehaviorTreeComponen
 	SteeringComponent->SetBehavior<FFlight_StukalovsAlex>();
 
 	Zombie = BTTUtils_StukalovsAlex::GetBlackboardObject<ABaseZombie>(OwnerComp, TEXT("Zombie"));
-	verify(Zombie);
+	if (!Zombie)
+	{
+		return EBTNodeResult::Failed;
+	}
 	
 	return EBTNodeResult::InProgress;
 }

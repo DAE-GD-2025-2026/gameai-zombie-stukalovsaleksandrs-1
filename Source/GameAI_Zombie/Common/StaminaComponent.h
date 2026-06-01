@@ -30,7 +30,6 @@ public:
 	float GetCurrentStamina() const {return Stamina;}
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Stamina")
 	float GetMaxStamina() const {return MaxStamina;}
-	
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Stamina")
