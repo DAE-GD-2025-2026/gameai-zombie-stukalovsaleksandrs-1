@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Components/ActorComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -10,6 +11,7 @@
 #include "Perception/AISense_Damage.h"
 #include "StudentPerceptor_StukalovsAlex.generated.h"
 
+class UHouseTrackerComponent_StukalovsAlex;
 class AHouse;
 class UHealthComponent;
 
@@ -24,14 +26,15 @@ public:
 	
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Perception")
-	FName HouseKey{ TEXT("House") };
+	UPROPERTY(EditAnywhere, Category = "Perception")
+	FName HouseKeyName{ "House" };
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Perception")
-	FName ItemKey{ TEXT("Item") };
+	UPROPERTY(EditAnywhere, Category = "Perception")
+	FName ItemKeyName{ "Item" };
 
-	UPROPERTY(EditDefaultsOnly, Category = "Perception")
-	FName ZombieKey{ TEXT("Zombie") };
+	UPROPERTY(EditAnywhere, Category = "Perception")
+	FBlackboardKeySelector ZombieKey;
+	FName ZombieKeyName{ "Zombie" };
 	
 	UFUNCTION()
 	virtual void OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
@@ -42,6 +45,8 @@ private:
 
 	float OldHealth{};
 	UHealthComponent* HealthComponent{};
+	UHouseTrackerComponent_StukalovsAlex* HouseTrackerComponent{};
 
-	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
+
 };

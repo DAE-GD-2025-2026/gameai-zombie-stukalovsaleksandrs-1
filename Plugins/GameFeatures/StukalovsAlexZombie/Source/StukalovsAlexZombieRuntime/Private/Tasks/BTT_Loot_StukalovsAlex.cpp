@@ -3,10 +3,10 @@
 // Plugin
 #include "Tasks/BTT_Loot_StukalovsAlex.h"
 #include "Tasks/BTTUtils_StukalovsAlex.h"
-#include "InventoryManager_StukalovsAlex.h"
+#include "Components/InventoryManagerComponent_StukalovsAlex.h"
 // Project
 #include "Common/InventoryComponent.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
 UBTT_Loot_StukalovsAlex::UBTT_Loot_StukalovsAlex()
@@ -20,7 +20,19 @@ EBTNodeResult::Type UBTT_Loot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent&
 	// Getting the pickup from the vicinity
 	ABaseItem * const Item{ BTTUtils_StukalovsAlex::GetBlackboardObject<ABaseItem>(OwnerComp, TEXT("Item")) };
 	TryPushingItem(Item);
-	if (ItemsToLoot.empty()) return EBTNodeResult::Failed;
+	// if (!TryPushingItem(Item))
+	// {
+	// 	// Failed to push the item
+	// 	UnsetBlackboardItem(OwnerComp);
+	// 	return EBTNodeResult::Failed;
+	// }
+	if (ItemsToLoot.empty())
+	{
+		// Requesting to look around for more pickups
+		UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+		Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, false);
+		return EBTNodeResult::Failed;
+	}
 
 	// Setting up character data
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
@@ -34,7 +46,7 @@ EBTNodeResult::Type UBTT_Loot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent&
 	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, true);
 	
 	// Getting inventory components
-	InventoryManager = SurvivorPawn->FindComponentByClass<UInventoryManager_StukalovsAlex>();
+	InventoryManager = SurvivorPawn->FindComponentByClass<UInventoryManagerComponent_StukalovsAlex>();
 	verify(InventoryManager);
 
 	return EBTNodeResult::InProgress;
@@ -63,7 +75,7 @@ void UBTT_Loot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 	// Looting or using the item if the character can reach it
 	if (float const PickupRange{ InventoryManager->GetPickupRange() }; (Item->GetActorLocation() - SurvivorPawn->GetActorLocation()).SquaredLength() < PickupRange * PickupRange)// Item within range
 	{
-		if (!TryUsingItem(*Item, *SurvivorPawn))
+		if (!TryUsingItem(*Item, OwnerComp))
 		{
 			if (!InventoryManager->TryTakingItem(*Item))
 			{
@@ -71,8 +83,9 @@ void UBTT_Loot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 				FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 				return;
 			}
+			UnsetBlackboardItem(OwnerComp);
 		}
-
+		
 		ItemsToLoot.pop_back();
 		// return EBTNodeResult::Succeeded;
 	}
@@ -82,17 +95,18 @@ void UBTT_Loot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 	}
 }
 
-void UBTT_Loot_StukalovsAlex::TryPushingItem(ABaseItem* Item) noexcept
+bool UBTT_Loot_StukalovsAlex::TryPushingItem(ABaseItem* Item) noexcept
 {
-	if (!Item) return;
+	if (!Item) return false;
 	if (std::ranges::find(ItemsToLoot, Item) != ItemsToLoot.end())// Item exists
 	{
-		return;// Not adding the item
+		return false;// Not adding the item
 	}
 	ItemsToLoot.push_back(Item);// Adding the item
+	return true;
 }
 
-void UBTT_Loot_StukalovsAlex::MoveToItem(ABaseItem const& Item) noexcept
+void UBTT_Loot_StukalovsAlex::MoveToItem(ABaseItem const& Item) const noexcept
 {
 	// TArray Path{ SurvivorPawn->CalculatePath(Item.GetActorLocation()) };
 	// verify(!Path.IsEmpty());
@@ -100,18 +114,26 @@ void UBTT_Loot_StukalovsAlex::MoveToItem(ABaseItem const& Item) noexcept
 	SteeringComponent->SetTarget({ItemLocation.X, ItemLocation.Y});
 }
 
-bool UBTT_Loot_StukalovsAlex::TryUsingItem(ABaseItem& Item, ASurvivorPawn& SurvivorPawn)
+void UBTT_Loot_StukalovsAlex::UnsetBlackboardItem(UBehaviorTreeComponent& OwnerComp) const
+{
+	UBlackboardComponent* BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
+	verify(BlackboardComponent);
+	return BlackboardComponent->SetValueAsObject(ItemKey.SelectedKeyName, nullptr);
+}
+
+bool UBTT_Loot_StukalovsAlex::TryUsingItem(ABaseItem& Item, UBehaviorTreeComponent& OwnerComp) const
 {
 	switch (Item.GetItemType())
 	{
 	case EItemType::Food:
 	{
 		// Eating if it will refill as much stamina as it can
-		UStaminaComponent* StaminaComponent{ SurvivorPawn.GetComponentByClass<UStaminaComponent>() };
+		UStaminaComponent const * const StaminaComponent{ SurvivorPawn->GetComponentByClass<UStaminaComponent>() };
 		verify(StaminaComponent);
 		if (Item.GetValue() <= StaminaComponent->GetMaxStamina() - StaminaComponent->GetCurrentStamina())
 		{
-			Item.UseItem(SurvivorPawn);
+			Item.UseItem(*SurvivorPawn);
+			UnsetBlackboardItem(OwnerComp);
 			return true;
 		}
 		return false;// Won't use now
@@ -119,17 +141,19 @@ bool UBTT_Loot_StukalovsAlex::TryUsingItem(ABaseItem& Item, ASurvivorPawn& Survi
 	case EItemType::Medkit:
 	{
 		// Using if it refills as much health as it can
-		UHealthComponent* HealthComponent{ SurvivorPawn.GetComponentByClass<UHealthComponent>() };
+		UHealthComponent const * const HealthComponent{ SurvivorPawn->GetComponentByClass<UHealthComponent>() };
 		verify(HealthComponent);
 		if (Item.GetValue() <= HealthComponent->GetMaxHealth() - HealthComponent->GetHealth())
 		{
-			Item.UseItem(SurvivorPawn);
+			Item.UseItem(*SurvivorPawn);
+			UnsetBlackboardItem(OwnerComp);
 			return true;
 		}
 		return false;
 	}
 	case EItemType::Garbage:
 		Item.Destroy();
+		UnsetBlackboardItem(OwnerComp);
 		return true;
 	default: return false;// Won't try using firearms, only loot
 	}

@@ -4,7 +4,7 @@
 #include "Tasks/BTT_Chase_StukalovsAlex.h"
 
 #include "BTTUtils_StukalovsAlex.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 #include "Zombies/BaseZombie.h"
 

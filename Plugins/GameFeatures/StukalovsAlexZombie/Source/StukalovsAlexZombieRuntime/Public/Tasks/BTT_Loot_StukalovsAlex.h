@@ -12,7 +12,7 @@ class USteeringComponent_StukalovsAlex;
 class UInventoryComponent;
 class ASurvivorPawn;
 class ABaseItem;
-class UInventoryManager_StukalovsAlex;
+class UInventoryManagerComponent_StukalovsAlex;
 /**
  * Task for looting items in a game world
  */
@@ -32,12 +32,17 @@ private:
 	USteeringComponent_StukalovsAlex* SteeringComponent{};
 	std::vector<ABaseItem*> ItemsToLoot;// not std::stack, bc I want to use std::find
 
-	UInventoryManager_StukalovsAlex* InventoryManager{};
+	UInventoryManagerComponent_StukalovsAlex* InventoryManager{};
 	
-	static bool TryUsingItem(ABaseItem&, ASurvivorPawn&);
-	void TryPushingItem(ABaseItem* Item) noexcept;
-	void MoveToItem(ABaseItem const& Item) noexcept;
+	bool TryUsingItem(ABaseItem&, UBehaviorTreeComponent& OwnerComp) const;
+	bool TryPushingItem(ABaseItem* Item) noexcept;
+	void MoveToItem(ABaseItem const& Item) const noexcept;
 
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector ShouldLookAroundKey;
+
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ItemKey;
+
+	void UnsetBlackboardItem(UBehaviorTreeComponent& OwnerComp) const;
 };

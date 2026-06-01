@@ -1,17 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "InventoryManager_StukalovsAlex.h"
+#include "Components/InventoryManagerComponent_StukalovsAlex.h"
 #include "Common/InventoryComponent.h"
 // Standard
 #include <ranges>
-#include <vector>
 
-UInventoryManager_StukalovsAlex::UInventoryManager_StukalovsAlex()
+UInventoryManagerComponent_StukalovsAlex::UInventoryManagerComponent_StukalovsAlex()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-bool UInventoryManager_StukalovsAlex::TryTakingItem(ABaseItem& Item) 
+bool UInventoryManagerComponent_StukalovsAlex::TryTakingItem(ABaseItem& Item) 
 {
 	if (IsInventoryFull()) return false;
 	if (InventoryComponent->GetInventory().Contains(&Item)) return false;
@@ -27,12 +26,12 @@ bool UInventoryManager_StukalovsAlex::TryTakingItem(ABaseItem& Item)
 	return true;
 }
 
-bool UInventoryManager_StukalovsAlex::IsInventoryFull() const noexcept
+bool UInventoryManagerComponent_StukalovsAlex::IsInventoryFull() const noexcept
 {
 	return ItemCount == InventoryComponent->GetInventoryCapacity();
 }
 
-void UInventoryManager_StukalovsAlex::RemoveValuelessElements() noexcept
+void UInventoryManagerComponent_StukalovsAlex::RemoveValuelessElements() noexcept
 {
 	UInventoryComponent* Inventory = InventoryComponent;
 	if (!Inventory) return;
@@ -50,12 +49,12 @@ void UInventoryManager_StukalovsAlex::RemoveValuelessElements() noexcept
 	}
 }
 
-float UInventoryManager_StukalovsAlex::GetPickupRange() const noexcept
+float UInventoryManagerComponent_StukalovsAlex::GetPickupRange() const noexcept
 {
 	return InventoryComponent->GetPickupRange();
 }
 
-void UInventoryManager_StukalovsAlex::BeginPlay()
+void UInventoryManagerComponent_StukalovsAlex::BeginPlay()
 {
 	Super::BeginPlay();
 

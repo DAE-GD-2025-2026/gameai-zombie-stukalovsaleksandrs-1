@@ -2,9 +2,9 @@
 
 #include "Tasks/BTT_EnterHouse_StukalovsAlex.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/HouseTrackerComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
-#include "Engine/World.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 #include "Tasks/BTTUtils_StukalovsAlex.h"
 #include "Village/House/House.h"
 
@@ -14,8 +14,6 @@ struct FEnterHouseMemory final
 {
 	TArray<FVector> Path;
 	uint32_t CurrentPointIdx{};
-	std::array<AHouse*, 5> VisitedHouses{};
-	uint32_t VisitedHouseCount{};
 };
 
 UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
@@ -26,14 +24,14 @@ UBTT_EnterHouse_StukalovsAlex::UBTT_EnterHouse_StukalovsAlex()
 
 EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	// 1. Getting the owner
+	// Getting the owner
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	if (!SurvivorPawn) return EBTNodeResult::Failed;
 	
 	// Getting the currently visible house
 	UBlackboardComponent* BlackboardComponent{ OwnerComp.GetBlackboardComponent() };
 	verify(BlackboardComponent);
-	AHouse* const House{ Cast<AHouse>(BlackboardComponent->GetValueAsObject(TEXT("House"))) };
+	House = Cast<AHouse>(BlackboardComponent->GetValueAsObject(HouseKey.SelectedKeyName));
 	verify(House);
 	
 	// Already inside the house -> Skipping
@@ -42,23 +40,14 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 		return EBTNodeResult::Failed;
 	}
 	
-	// Adding the current house to the list of the visited ones if it is not there already
-	FEnterHouseMemory* Memory{ reinterpret_cast<FEnterHouseMemory*>(NodeMemory) };
-	if (std::ranges::find_if(Memory->VisitedHouses, [House](AHouse const * const VisitedHouse)
-	{
-		return House == VisitedHouse;
-	}) == Memory->VisitedHouses.end())// Not found
-	{
-		// Adding the house
-		++Memory->VisitedHouseCount %= Memory->VisitedHouses.size();
-		Memory->VisitedHouses[Memory->VisitedHouseCount] = House;
-	}
-	else
-	{
-		// Not going into a house that's already visited
-		return EBTNodeResult::Failed;
-	}
 
+	// Getting the HouseTrackerComponent
+	HouseTrackerComponent = SurvivorPawn->GetComponentByClass<UHouseTrackerComponent_StukalovsAlex>();
+	verify(HouseTrackerComponent);
+
+	// House already visited -> skipping
+	if (HouseTrackerComponent->IsHouseVisited(*House)) return EBTNodeResult::Failed;
+	
 	// Requesting to look around the house
 	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
 	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, true);
@@ -76,10 +65,10 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 		SurvivorPawn->CalculatePath(HouseCenter)
 	};
 	
-	// 6. Writing the path's data to the node's memory block to access it in Tick()
+	// Writing the path's data to the node's memory block to access it in Tick()
+	FEnterHouseMemory* Memory{ reinterpret_cast<FEnterHouseMemory*>(NodeMemory) };
 	Memory->Path = Path;
 	Memory->CurrentPointIdx = 1;// Skipping SurvivorPawn's own location
-	
 	
 	// Visualizing waypoints
 #ifdef DEBUG_WAYPOINTS
@@ -125,7 +114,7 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::AbortTask(UBehaviorTreeCompon
 {
 	// Removing all the momentum to not distort the other movement input
 	SurvivorPawn->GetMovementComponent()->StopMovementImmediately();
-
+	
 	return EBTNodeResult::Aborted;
 }
 
@@ -133,4 +122,10 @@ uint16 UBTT_EnterHouse_StukalovsAlex::GetInstanceMemorySize() const
 {
 	// Without it, the NodeMemory will be of size 0, so any writes will result in segfault
 	return sizeof(FEnterHouseMemory);
+}
+
+void UBTT_EnterHouse_StukalovsAlex::SaveHouseAsVisited() const noexcept
+{
+	// Adding the current house to the list of the visited ones if it is not there already
+	HouseTrackerComponent->SaveHouseAsVisited(*House);
 }

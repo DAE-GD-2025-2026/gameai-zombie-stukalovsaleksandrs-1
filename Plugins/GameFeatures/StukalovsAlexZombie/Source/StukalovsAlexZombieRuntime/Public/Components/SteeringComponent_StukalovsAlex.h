@@ -9,7 +9,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "SteeringBehaviors_StukalovsAlex.h"
+#include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
 #include "SteeringComponent_StukalovsAlex.generated.h"
 
 class ASurvivorPawn;

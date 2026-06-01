@@ -3,7 +3,7 @@
 #include "Tasks/BTT_Flight_StukalovsAlex.h"
 
 #include "BTTUtils_StukalovsAlex.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 #include "Zombies/BaseZombie.h"
 
@@ -11,6 +11,8 @@ UBTT_Flight_StukalovsAlex::UBTT_Flight_StukalovsAlex()
 {
 	bNotifyTick = true;
 	NodeName = "Flight";
+
+	
 }
 
 EBTNodeResult::Type UBTT_Flight_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

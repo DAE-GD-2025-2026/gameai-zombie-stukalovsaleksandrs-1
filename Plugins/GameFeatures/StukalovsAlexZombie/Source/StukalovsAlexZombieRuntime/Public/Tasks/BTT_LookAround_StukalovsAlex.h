@@ -8,6 +8,7 @@
 #include "BTT_LookAround_StukalovsAlex.generated.h"
 
 
+class UHouseTrackerComponent_StukalovsAlex;
 class USteeringComponent_StukalovsAlex;
 class ASurvivorPawn;
 // Rotates smoothly by -AbsDegToTurn and then by +AbsDegToTurn 
@@ -36,6 +37,6 @@ private:
     
 	ASurvivorPawn* SurvivorPawn{};
 	USteeringComponent_StukalovsAlex* SteeringComponent{};
-	
+	UHouseTrackerComponent_StukalovsAlex* HouseTrackerComponent{};
 
 };

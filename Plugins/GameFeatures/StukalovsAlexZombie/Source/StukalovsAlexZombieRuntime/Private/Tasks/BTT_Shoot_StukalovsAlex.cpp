@@ -4,10 +4,11 @@
 #include "Tasks/BTT_Shoot_StukalovsAlex.h"
 
 #include "BTTUtils_StukalovsAlex.h"
-#include "InventoryManager_StukalovsAlex.h"
 #include "Items/Pistol.h"
 #include "Items/Shotgun.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
+#include "Components/InventoryManagerComponent_StukalovsAlex.h"
+#include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
 #include "Zombies/BaseZombie.h"
 
 UBTT_Shoot_StukalovsAlex::UBTT_Shoot_StukalovsAlex()
@@ -33,7 +34,7 @@ EBTNodeResult::Type UBTT_Shoot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent
 	SteeringComponent->SetBehavior<FLookAt_StukalovsAlex>();
 
 	// Getting the inventory manager(used to remove guns after running out of ammo)
-	InventoryManager = SurvivorPawn->GetComponentByClass<UInventoryManager_StukalovsAlex>();
+	InventoryManager = SurvivorPawn->GetComponentByClass<UInventoryManagerComponent_StukalovsAlex>();
 	verify(InventoryManager);
 
 	// Getting the guns

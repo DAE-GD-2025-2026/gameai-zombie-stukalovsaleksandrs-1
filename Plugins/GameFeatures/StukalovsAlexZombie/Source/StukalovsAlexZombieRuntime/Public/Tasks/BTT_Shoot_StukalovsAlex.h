@@ -7,7 +7,7 @@
 #include "BTT_Shoot_StukalovsAlex.generated.h"
 
 class USteeringComponent_StukalovsAlex;
-class UInventoryManager_StukalovsAlex;
+class UInventoryManagerComponent_StukalovsAlex;
 class APistol;
 class AShotgun;
 class ABaseItem;
@@ -30,7 +30,7 @@ protected:
 
 private:
 	ASurvivorPawn* SurvivorPawn{};
-	UInventoryManager_StukalovsAlex* InventoryManager{};
+	UInventoryManagerComponent_StukalovsAlex* InventoryManager{};
 	USteeringComponent_StukalovsAlex* SteeringComponent{};
 	
 	ABaseZombie* Zombie{};

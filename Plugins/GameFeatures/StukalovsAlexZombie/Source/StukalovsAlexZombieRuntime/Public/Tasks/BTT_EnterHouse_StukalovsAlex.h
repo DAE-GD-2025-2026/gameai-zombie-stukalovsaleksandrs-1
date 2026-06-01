@@ -6,6 +6,8 @@
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTT_EnterHouse_StukalovsAlex.generated.h"
 
+class AHouse;
+class UHouseTrackerComponent_StukalovsAlex;
 class ASurvivorPawn;
 
 UCLASS()
@@ -24,8 +26,12 @@ private:
 	float WaypointAcceptanceRadius{ 50.f };
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector ShouldLookAroundKey;
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector HouseKey;
 
+	AHouse* House{};
 	ASurvivorPawn* SurvivorPawn{};
-	
-	
+	UHouseTrackerComponent_StukalovsAlex* HouseTrackerComponent{};
+
+	void SaveHouseAsVisited() const noexcept;
 };

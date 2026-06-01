@@ -4,6 +4,7 @@
 #include "Tasks/BTT_LookAround_StukalovsAlex.h"
 
 #include "BTTUtils_StukalovsAlex.h"
+#include "Components/HouseTrackerComponent_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 
 UBTT_LookAround_StukalovsAlex::UBTT_LookAround_StukalovsAlex()
@@ -17,13 +18,24 @@ EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	verify(SurvivorPawn);
 
+	// Debug, just to see if it'll cause the character to freeze again with this constraint
+	SurvivorPawn->SetActorRotation(FRotator{ 0.f, 0.f, 0.f });
+	
 	StartYaw = SurvivorPawn->GetActorRotation().Yaw;
 	Phase = ETurningPhase::Right;
 	TargetYaw = AbsDegToTurn;
 
 	// Setting the JustSpawned key to false
 	UBlackboardComponent& Blackboard{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp) };
+	if (!Blackboard.GetValueAsBool(ShouldLookAroundKey.SelectedKeyName))
+	{
+		return EBTNodeResult::Failed;// Should not look around -> failing
+	}
 	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, false);
+
+	// Getting the house tracker component
+	HouseTrackerComponent = SurvivorPawn->GetComponentByClass<UHouseTrackerComponent_StukalovsAlex>();
+	verify(HouseTrackerComponent);
 	
 	return EBTNodeResult::InProgress;
 }
@@ -50,8 +62,17 @@ void UBTT_LookAround_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, 
 			TurnDirection = 1.f;
 			break;
 		case ETurningPhase::BackToStart:
+		{
+			// Looked around, found nothing, if inside the house, then the house is visited
+			HouseTrackerComponent->MarkHouseOwnerIsInAsVisited();
+		
+			// Removing the house from the blackboard variable
+			UBlackboardComponent& BlackboardComponent{ BTTUtils_StukalovsAlex::GetBlackboard(OwnerComp)};
+			BlackboardComponent.SetValueAsObject(TEXT("House"), nullptr);
+		
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 			return;
+		}
 		default: ;
 		}
 	}

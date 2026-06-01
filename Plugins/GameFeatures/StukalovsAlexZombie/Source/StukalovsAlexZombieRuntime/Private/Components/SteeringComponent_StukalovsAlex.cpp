@@ -1,9 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 
-#include "SteeringOutput_StukalovsAlex.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "SteeringBehaviors/SteeringOutput_StukalovsAlex.h"
 #include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
 

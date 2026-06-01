@@ -3,8 +3,8 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "Survivor/SurvivorPawn.h"
 
-#include "InventoryManager_StukalovsAlex.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/InventoryManagerComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 
 ASurvivorPawn* BTTUtils_StukalovsAlex::GetOwner(UBehaviorTreeComponent& OwnerComp) noexcept
 {

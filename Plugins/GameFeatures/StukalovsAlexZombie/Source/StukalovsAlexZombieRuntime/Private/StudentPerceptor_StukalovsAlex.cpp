@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "EngineUtils.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/HouseTrackerComponent_StukalovsAlex.h"
 #include "Items/BaseItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
@@ -47,6 +48,10 @@ void UStudentPerceptor_StukalovsAlex::BeginPlay()
 	HealthComponent = GetOwner()->FindComponentByClass<UHealthComponent>();
 	verify(HealthComponent);
 	OldHealth = HealthComponent->GetHealth();
+
+	// Getting the house tracker component
+	HouseTrackerComponent = GetOwner()->FindComponentByClass<UHouseTrackerComponent_StukalovsAlex>();
+	verify(HouseTrackerComponent);
 }
 
 void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStimulus const Stimulus)
@@ -60,18 +65,40 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 	{
 		if (AHouse* House{ Cast<AHouse>(Actor) }; House)
 		{
-			BlackboardComponent->SetValueAsObject(HouseKey, House);
+			if (HouseTrackerComponent->IsHouseVisited(*House)) return;// Ignoring the visited houses
+			
+			// The house is not visited...
+
+			if (AHouse* CurrentHouse{ (Cast<AHouse>(BlackboardComponent->GetValueAsObject(HouseKeyName))) })
+			{
+				// Choosing the closest between this house and the currently sensed one
+				House = Actor->GetDistanceTo(CurrentHouse) < Actor->GetDistanceTo(House) ? CurrentHouse : House;
+			}
+
+			// Adding the closest house to the blackboard
+			BlackboardComponent->SetValueAsObject(HouseKeyName, House);
+
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Updated closest unvisited house"));
 		}
 
 		if (ABaseItem* Item{ Cast<ABaseItem>(Actor) }; Item)
 		{
+			// TODO: DRY. Too similar to house perception
 			// Check if this item is more valuable 
-			BlackboardComponent->SetValueAsObject(ItemKey, Item);
+			if (ABaseItem* CurrentItem{ (Cast<ABaseItem>(BlackboardComponent->GetValueAsObject(ItemKeyName))) })
+			{
+				// Choosing the closest between this item and the currently sensed one
+				Item = Actor->GetDistanceTo(CurrentItem) < Actor->GetDistanceTo(Item) ? CurrentItem : Item;
+			}
+
+			// Adding the closest item to the blackboard
+			BlackboardComponent->SetValueAsObject(ItemKeyName, Item);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Updated closest item"));
 		}
 
 		if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
 		{
-			BlackboardComponent->SetValueAsObject(ZombieKey, Zombie);
+			BlackboardComponent->SetValueAsObject(ZombieKeyName, Zombie);
 		}
 
 	}
@@ -82,7 +109,7 @@ void UStudentPerceptor_StukalovsAlex::OnPerceptionUpdated(AActor* Actor, FAIStim
 		if (ABaseZombie* Zombie{ Cast<ABaseZombie>(Actor) }; Zombie)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Zombie hit character"));
-			BlackboardComponent->SetValueAsObject(ZombieKey, Zombie);
+			BlackboardComponent->SetValueAsObject(ZombieKey.SelectedKeyName, Zombie);
 		}
 	}
 }
@@ -103,14 +130,14 @@ void UStudentPerceptor_StukalovsAlex::TickComponent(float const DeltaTime, enum 
 			ABaseZombie* ClosestZombie{ Cast<ABaseZombie>(Zombies[0]) };
 			for (AActor* const Zombie : Zombies)
 			{
-				if (ASurvivorPawn* SurvivorPawn{ Cast<ASurvivorPawn>(GetOwner()) };
+				if (ASurvivorPawn const * const SurvivorPawn{ Cast<ASurvivorPawn>(GetOwner()) };
 					Zombie->GetDistanceTo(SurvivorPawn) < ClosestZombie->GetDistanceTo(SurvivorPawn))
 				{
 					ClosestZombie = Cast<ABaseZombie>(Zombie);
 				}
 			}
 			// Saving the closest zombie to blackboard
-			BlackboardComponent->SetValueAsObject(ZombieKey, ClosestZombie);
+			BlackboardComponent->SetValueAsObject(ZombieKey.SelectedKeyName, ClosestZombie);
 		}
 	}
 }

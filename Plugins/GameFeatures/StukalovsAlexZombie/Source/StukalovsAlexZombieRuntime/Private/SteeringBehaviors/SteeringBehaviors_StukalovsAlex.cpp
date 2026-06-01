@@ -1,5 +1,5 @@
 #include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
-#include "SteeringBehaviors/SteeringComponent_StukalovsAlex.h"
+#include "Components/SteeringComponent_StukalovsAlex.h"
 #include "DrawDebugHelpers.h"
 #include "NavigationSystem.h"
 #include "SteeringOutput_StukalovsAlex.h"
