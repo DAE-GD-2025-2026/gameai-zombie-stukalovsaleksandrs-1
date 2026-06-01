@@ -81,7 +81,7 @@ void UBTT_Loot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 		}
 		
 		ItemsToLoot.pop_back();
-		// return EBTNodeResult::Succeeded;
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 	else// Item out of reach -> moving towards it
 	{

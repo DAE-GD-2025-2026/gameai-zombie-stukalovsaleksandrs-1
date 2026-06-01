@@ -81,6 +81,8 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	// Getting the owner
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	verify(SurvivorPawn);
+
+	
 	
 	// 7. Requesting BT to keep the task alive
 	return EBTNodeResult::InProgress;

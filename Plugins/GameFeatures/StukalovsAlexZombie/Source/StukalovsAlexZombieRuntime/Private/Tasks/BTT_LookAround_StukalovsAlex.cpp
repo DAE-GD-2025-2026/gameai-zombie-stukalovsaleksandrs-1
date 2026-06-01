@@ -26,9 +26,6 @@ EBTNodeResult::Type UBTT_LookAround_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	}
 	Blackboard.SetValueAsBool(ShouldLookAroundKey.SelectedKeyName, false);
 
-	// Debug, just to see if it'll cause the character to freeze again with this constraint
-	SurvivorPawn->SetActorRotation(FRotator{ 0.f, 0.f, 0.f });
-	
 	StartYaw = SurvivorPawn->GetActorRotation().Yaw;
 	Phase = ETurningPhase::Right;
 	TargetYaw = AbsDegToTurn;

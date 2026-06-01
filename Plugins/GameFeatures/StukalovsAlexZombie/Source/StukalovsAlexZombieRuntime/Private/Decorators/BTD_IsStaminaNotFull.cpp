@@ -1,8 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTD_IsStaminaNotFull.h"
-
+#include "Decorators/BTD_IsStaminaNotFull.h"
 #include "AIController.h"
 #include "Survivor/SurvivorPawn.h"
 

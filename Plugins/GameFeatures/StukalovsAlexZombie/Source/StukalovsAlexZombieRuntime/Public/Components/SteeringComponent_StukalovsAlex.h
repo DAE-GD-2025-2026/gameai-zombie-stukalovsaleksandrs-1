@@ -35,6 +35,7 @@ public:
 	
 	void SetTarget(FVector2D const&) const;
 	[[nodiscard]] FVector2D GetOwnerLocation2D() const noexcept;
+	void FaceTargetImmidiately();
 	
 protected:
 	virtual void BeginPlay() override;

@@ -20,5 +20,5 @@ EBTNodeResult::Type UBTT_Wander_StukalovsAlex::ExecuteTask(UBehaviorTreeComponen
 	USteeringComponent_StukalovsAlex* SteeringComponent = SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>();
 	verify(SteeringComponent);
 	SteeringComponent->SetBehavior<FWander_StukalovsAlex>();
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Succeeded;
 }

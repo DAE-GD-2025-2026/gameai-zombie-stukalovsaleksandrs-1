@@ -35,8 +35,22 @@ FVector2D USteeringComponent_StukalovsAlex::GetOwnerLocation2D() const noexcept
 	return {OwnerLocation.X, OwnerLocation.Y};
 }
 
+void USteeringComponent_StukalovsAlex::FaceTargetImmidiately()
+{
+	FVector2D Target{ CurrentBehavior->GetTarget() };
+    
+	// Get current positions
+	FVector const CurrentLocation = SurvivorPawn->GetActorLocation();
+	FVector const TargetLocation(Target.X, Target.Y, CurrentLocation.Z);
+    
+	// Calculate rotation to look at target
+	FRotator const NewRotation{ (TargetLocation - CurrentLocation).Rotation() };
+    
+	SurvivorPawn->SetActorRotation(NewRotation);
+}
+
 void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELevelTick const TickType,
-                                       FActorComponentTickFunction* const ThisTickFunction)
+                                                     FActorComponentTickFunction* const ThisTickFunction)
 {
 	Super::TickComponent(DeltaSec, TickType, ThisTickFunction);
 	if (typeid(CurrentBehavior) == typeid(FIdle_StukalovsAlex)) return;// Not moving in idle state

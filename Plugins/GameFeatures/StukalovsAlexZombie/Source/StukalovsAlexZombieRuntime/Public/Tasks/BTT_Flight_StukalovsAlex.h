@@ -17,8 +17,6 @@ class STUKALOVSALEXZOMBIERUNTIME_API UBTT_Flight_StukalovsAlex : public UBTTask_
 
 	UBTT_Flight_StukalovsAlex();
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 	ASurvivorPawn* SurvivorPawn{};
 	USteeringComponent_StukalovsAlex* SteeringComponent{};

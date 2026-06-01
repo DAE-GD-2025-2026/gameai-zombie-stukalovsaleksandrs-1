@@ -41,7 +41,11 @@ EBTNodeResult::Type UBTT_Shoot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent
 	if (!SelectGuns()) return EBTNodeResult::Failed;
 
 	FVector const ZombieLocation{ Zombie->GetActorLocation() };
-	SteeringComponent->SetTarget({ZombieLocation.X, ZombieLocation.Y});
+	FVector2D const ZombieLocation2D{ ZombieLocation.X, ZombieLocation.Y };
+	SteeringComponent->SetTarget(ZombieLocation2D);
+
+	// Setting the Survivor's rotation right away to hit while shooting
+	SteeringComponent->FaceTargetImmidiately();
 	
 	SelectProperWeapon(OwnerComp);
 	
@@ -58,6 +62,13 @@ EBTNodeResult::Type UBTT_Shoot_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent
 	//
 	// // Letting the tick run
 	// return EBTNodeResult::InProgress;
+
+	
+	// Rotating towards the zombie right away
+	// USteeringComponent_StukalovsAlex* SteeringComponent{ SurvivorPawn->GetComponentByClass<USteeringComponent_StukalovsAlex>()};
+	// FVector const ZombieLocation{ Zombie->GetActorLocation() };
+	// SteeringComponent->SetTarget({ZombieLocation.X, ZombieLocation.Y});
+	// SteeringComponent->FaceTargetImmidiately();
 }
 
 void UBTT_Shoot_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float const DeltaSeconds)
@@ -111,5 +122,6 @@ void UBTT_Shoot_StukalovsAlex::SelectProperWeapon(UBehaviorTreeComponent& OwnerC
 
 void UBTT_Shoot_StukalovsAlex::Shoot(UBehaviorTreeComponent& OwnerComp) const noexcept
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Shot"));
 	CurrentWeapon->UseItem(*SurvivorPawn);// Shooting
 }

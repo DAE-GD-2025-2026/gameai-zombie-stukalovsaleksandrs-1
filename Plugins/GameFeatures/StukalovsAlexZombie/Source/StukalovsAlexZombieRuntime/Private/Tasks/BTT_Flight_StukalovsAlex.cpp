@@ -9,10 +9,8 @@
 
 UBTT_Flight_StukalovsAlex::UBTT_Flight_StukalovsAlex()
 {
-	bNotifyTick = true;
+	bNotifyTick = false;
 	NodeName = "Flight";
-
-	
 }
 
 EBTNodeResult::Type UBTT_Flight_StukalovsAlex::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -30,11 +28,8 @@ EBTNodeResult::Type UBTT_Flight_StukalovsAlex::ExecuteTask(UBehaviorTreeComponen
 		return EBTNodeResult::Failed;
 	}
 	
-	return EBTNodeResult::InProgress;
-}
-
-void UBTT_Flight_StukalovsAlex::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
 	FVector const ZombieLocation{ Zombie->GetActorLocation() };
 	SteeringComponent->SetTarget({ZombieLocation.X, ZombieLocation.Y});
+	
+	return EBTNodeResult::Succeeded;
 }
