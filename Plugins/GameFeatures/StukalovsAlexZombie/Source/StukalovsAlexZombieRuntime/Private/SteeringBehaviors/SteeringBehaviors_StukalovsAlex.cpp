@@ -21,7 +21,7 @@ FSteeringOutput_StukalovsAlex FIdle_StukalovsAlex::CalculateSteering(float Delta
 FSteeringOutput_StukalovsAlex FSeek_StukalovsAlex::CalculateSteering(float DeltaTime, USteeringComponent_StukalovsAlex const& SteeringComponent) noexcept
 {
 	// Getting the closest navigable point to the character in the direction of the target
-	Target = GetClosestNavigablePoint(Target, *SteeringComponent.GetOwner());
+	Target = GetClosestNavigablePoint(Target, *SteeringComponent.GetOwner())t status;
 	
 	FVector2D LinearVelocity{ Target - SteeringComponent.GetOwnerLocation2D() };
 	if (LinearVelocity.SizeSquared() < 1.f)
