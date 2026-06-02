@@ -44,9 +44,21 @@ FSteeringOutput_StukalovsAlex FFlight_StukalovsAlex::CalculateSteering(float Del
 	// Moving away from the target
 	FVector2D const OwnerLocation{ SteeringComponent.GetOwnerLocation2D() };
 	FVector2D const OldTarget{ Target };
-	FVector2D const LinearVelocity{ OwnerLocation - Target };
-
-	SteeringComponent.SetTarget(OwnerLocation + LinearVelocity * 100.f);
+	FVector2D LinearVelocity{ OwnerLocation - Target };
+	
+	// Randomizing angle by -25 to +25 degrees
+	static float constexpr MaxAbsDeg{ 90.f };
+	float const RandomAngleDegrees = FMath::RandRange(-MaxAbsDeg, MaxAbsDeg);
+	float const RandomAngleRadians = FMath::DegreesToRadians(RandomAngleDegrees);
+	float const CosAngle = FMath::Cos(RandomAngleRadians);
+	float const SinAngle = FMath::Sin(RandomAngleRadians);
+	
+	FVector2D const RandomizedVelocity(
+		LinearVelocity.X * CosAngle - LinearVelocity.Y * SinAngle,
+		LinearVelocity.X * SinAngle + LinearVelocity.Y * CosAngle
+	);
+	
+	SteeringComponent.SetTarget(OwnerLocation + RandomizedVelocity * 100.f);
 
 	// Delegating to not duplicate logic
 	FSteeringOutput_StukalovsAlex const Output{ FSeek_StukalovsAlex::CalculateSteering(DeltaTime, SteeringComponent) };

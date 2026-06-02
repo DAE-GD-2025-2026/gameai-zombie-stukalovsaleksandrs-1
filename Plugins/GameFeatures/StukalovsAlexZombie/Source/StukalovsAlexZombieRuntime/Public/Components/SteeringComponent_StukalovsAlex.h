@@ -35,7 +35,7 @@ public:
 	
 	void SetTarget(FVector2D const&) const;
 	[[nodiscard]] FVector2D GetOwnerLocation2D() const noexcept;
-	void FaceTargetImmidiately();
+	void FaceTargetImmidiately() const;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,5 +48,7 @@ private:
 	float DegPerSec{ 90.f };
 
 	ASurvivorPawn* SurvivorPawn{};
-	FVector2D SmoothedVelocity{};	
+	FVector2D SmoothedVelocity{};
+
+	FVector2D OldLocation{};
 };

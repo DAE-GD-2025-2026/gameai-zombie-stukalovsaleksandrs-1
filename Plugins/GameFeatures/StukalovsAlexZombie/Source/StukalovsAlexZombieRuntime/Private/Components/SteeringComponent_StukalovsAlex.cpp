@@ -2,6 +2,8 @@
 
 #include "Components/SteeringComponent_StukalovsAlex.h"
 
+#include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "SteeringBehaviors/SteeringOutput_StukalovsAlex.h"
 #include "SteeringBehaviors/SteeringBehaviors_StukalovsAlex.h"
 #include "Survivor/SurvivorPawn.h"
@@ -28,14 +30,13 @@ void USteeringComponent_StukalovsAlex::BeginPlay()
 	verify(SurvivorPawn);
 }
 
-
 FVector2D USteeringComponent_StukalovsAlex::GetOwnerLocation2D() const noexcept
 {
 	FVector const OwnerLocation{ GetOwner()->GetActorLocation() };
 	return {OwnerLocation.X, OwnerLocation.Y};
 }
 
-void USteeringComponent_StukalovsAlex::FaceTargetImmidiately()
+void USteeringComponent_StukalovsAlex::FaceTargetImmidiately() const
 {
 	FVector2D Target{ CurrentBehavior->GetTarget() };
     
@@ -69,6 +70,7 @@ void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELeve
 		FRotator const NewRotation{ FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSec, DegPerSec) };
 		SurvivorPawn->SetActorRotation(NewRotation);
 	}
+
 }
 
 void USteeringComponent_StukalovsAlex::SetTarget(FVector2D const& Target) const

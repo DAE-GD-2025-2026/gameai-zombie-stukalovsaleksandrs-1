@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Decorators/BTDecorator_Blackboard.h"
-#include "BTD_DistanceShorterThan.generated.h"
+#include "BTD_DistanceShorterThan_StukalovsAlex.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STUKALOVSALEXZOMBIERUNTIME_API UBTD_DistanceShorterThan : public UBTDecorator_Blackboard
+class STUKALOVSALEXZOMBIERUNTIME_API UBTD_DistanceShorterThan_StukalovsAlex : public UBTDecorator_Blackboard
 {
 	GENERATED_BODY()
 public:
-	UBTD_DistanceShorterThan();
+	UBTD_DistanceShorterThan_StukalovsAlex();
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 
 private:
