@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SteeringBehaviors/SteeringOutput_StukalovsAlex.h"
+#include <vector>
+
 class USteeringComponent_StukalovsAlex;
 
 class FSteeringBehaviorBase_StukalovsAlex
@@ -60,7 +62,26 @@ private:
         TargetCircleOffset{ 400 }, 
         // Max offset between 2 consecutive random angles
         // NOTE: Added for smoothness
-        MaxTargetDegreesOffset{ 1.f };
+        MaxTargetDegreesOffset{ 45.f };
     float LastTargetDegrees{};
 };
 
+// Blended steering
+class FBlendedSteering_StukalovsAlex final : public FSteeringBehaviorBase_StukalovsAlex
+{
+public:
+    struct FWeightedBehavior_StukalovsAlex final
+    {
+        FSteeringBehaviorBase_StukalovsAlex* Behavior{};
+        float Weight{};
+    };
+
+    explicit FBlendedSteering_StukalovsAlex(std::vector<FWeightedBehavior_StukalovsAlex> &&);
+    
+    virtual FSteeringOutput_StukalovsAlex CalculateSteering(float DeltaTime,
+        const USteeringComponent_StukalovsAlex&) noexcept override;
+
+private:
+	std::vector<FWeightedBehavior_StukalovsAlex> WeightedBehaviors{};
+    
+};

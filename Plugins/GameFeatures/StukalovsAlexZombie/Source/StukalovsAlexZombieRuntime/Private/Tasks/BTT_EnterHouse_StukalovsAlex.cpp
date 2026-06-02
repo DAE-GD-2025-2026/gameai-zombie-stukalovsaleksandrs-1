@@ -39,7 +39,6 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	{
 		return EBTNodeResult::Failed;
 	}
-	
 
 	// Getting the HouseTrackerComponent
 	HouseTrackerComponent = SurvivorPawn->GetComponentByClass<UHouseTrackerComponent_StukalovsAlex>();
@@ -82,7 +81,6 @@ EBTNodeResult::Type UBTT_EnterHouse_StukalovsAlex::ExecuteTask(UBehaviorTreeComp
 	SurvivorPawn = BTTUtils_StukalovsAlex::GetOwner(OwnerComp);
 	verify(SurvivorPawn);
 
-	
 	
 	// 7. Requesting BT to keep the task alive
 	return EBTNodeResult::InProgress;

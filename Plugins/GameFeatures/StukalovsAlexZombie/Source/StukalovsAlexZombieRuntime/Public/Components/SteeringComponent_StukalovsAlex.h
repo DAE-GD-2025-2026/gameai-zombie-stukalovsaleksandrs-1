@@ -24,7 +24,7 @@ public:
 	USteeringComponent_StukalovsAlex();
 
 	virtual void TickComponent(float DeltaSec, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+							   FActorComponentTickFunction* ThisTickFunction) override;
 
 	
 	template<typename T> requires std::derived_from<T, FSteeringBehaviorBase_StukalovsAlex>
@@ -42,12 +42,16 @@ protected:
 
 private:
 	std::unordered_map<std::type_index, std::unique_ptr<FSteeringBehaviorBase_StukalovsAlex>> Behaviors{};
+	std::unique_ptr<FSteeringBehaviorBase_StukalovsAlex> Flight{ std::make_unique<FFlight_StukalovsAlex>() };
 	FSteeringBehaviorBase_StukalovsAlex* CurrentBehavior{};// non-owning
 
+	
 	UPROPERTY(VisibleAnywhere)
 	float DegPerSec{ 90.f };
 
+	UPROPERTY()
 	ASurvivorPawn* SurvivorPawn{};
+	
 	FVector2D SmoothedVelocity{};
 
 	FVector2D OldLocation{};

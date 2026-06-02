@@ -15,19 +15,24 @@ USteeringComponent_StukalovsAlex::USteeringComponent_StukalovsAlex()
 	// Initializing the steering behaviors
 	Behaviors.emplace(typeid(FIdle_StukalovsAlex), std::make_unique<FIdle_StukalovsAlex>());
 	Behaviors.emplace(typeid(FSeek_StukalovsAlex), std::make_unique<FSeek_StukalovsAlex>());
-	Behaviors.emplace(typeid(FFlight_StukalovsAlex), std::make_unique<FFlight_StukalovsAlex>());
 	Behaviors.emplace(typeid(FLookAt_StukalovsAlex), std::make_unique<FLookAt_StukalovsAlex>());
 	Behaviors.emplace(typeid(FWander_StukalovsAlex), std::make_unique<FWander_StukalovsAlex>());
 
+	std::unique_ptr FlightWander{ std::make_unique<FBlendedSteering_StukalovsAlex>(std::move(std::vector{
+		FBlendedSteering_StukalovsAlex::FWeightedBehavior_StukalovsAlex{ Flight.get(), .25f },
+		FBlendedSteering_StukalovsAlex::FWeightedBehavior_StukalovsAlex{ Behaviors.at(typeid(FWander_StukalovsAlex)).get(), .75f }
+	}))};
+	
+	Behaviors.emplace(typeid(FFlight_StukalovsAlex), std::move(FlightWander));
+
 	// Selecting the starting behavior
-	CurrentBehavior = Behaviors.at(typeid(FIdle_StukalovsAlex)).get();
+	CurrentBehavior = Behaviors.at(typeid(FWander_StukalovsAlex)).get();
 }
 
 void USteeringComponent_StukalovsAlex::BeginPlay()
 {
 	Super::BeginPlay();
-	SurvivorPawn = Cast<ASurvivorPawn>(GetOwner());
-	verify(SurvivorPawn);
+	SurvivorPawn = CastChecked<ASurvivorPawn>(GetOwner());
 }
 
 FVector2D USteeringComponent_StukalovsAlex::GetOwnerLocation2D() const noexcept
@@ -38,7 +43,7 @@ FVector2D USteeringComponent_StukalovsAlex::GetOwnerLocation2D() const noexcept
 
 void USteeringComponent_StukalovsAlex::FaceTargetImmidiately() const
 {
-	FVector2D Target{ CurrentBehavior->GetTarget() };
+	FVector2D const Target{ CurrentBehavior->GetTarget() };
     
 	// Get current positions
 	FVector const CurrentLocation = SurvivorPawn->GetActorLocation();
@@ -70,7 +75,6 @@ void USteeringComponent_StukalovsAlex::TickComponent(float const DeltaSec, ELeve
 		FRotator const NewRotation{ FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSec, DegPerSec) };
 		SurvivorPawn->SetActorRotation(NewRotation);
 	}
-
 }
 
 void USteeringComponent_StukalovsAlex::SetTarget(FVector2D const& Target) const
